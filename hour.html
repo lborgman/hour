@@ -4,10 +4,108 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        :root {
+            color: snow;
+            background-color: black;
+            font-family: Arial, sans-serif;
+        }
 
+        body {
+            padding: 10px;
+        }
+
+        #output {
+            color: black;
+            background-color: wheat;
+            font-size: 1.4em;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        #output-container {
+            margin-top: 40px;
+        }
+
+        #details {
+            position: fixed;
+            left: 0px;
+            bottom: 0px;
+            padding: 10px;
+            padding-top: 20px;
+            width: 90%;
+            max-height: 80%;
+            margin-left: 0;
+            margin-right: 0;
+            background-color: darkolivegreen;
+         }
+         #good4img {
+            background-image: url(https://lh3.googleusercontent.com/pw/AP1GczM6hpEMY9EwipUAZVwxPLpWTrUUSty3lpeKP3ql_dK6rjcWx4EQof1SimyCO6JftmgAbklbfrwKJFWotJXuEfGfRemPqiOM_yGMwHe9jGg6tRCZeZKubxhSJ3DyY1wiby8Toqofll7rVLseKMmUR7q0F_QPUMiwSPdWBcWNb7Cn1Q01ge79V5dnqA1eDKVZ_e8AVwsgbogmPAD9gJ_90Ztr7APpV0oTk_BytQMYak59PI0h0JS4yNmMhpVr5z_QK3dcg7zLaVnG8WJLS9WxxbOky3DYiGv-0xCdupWfpOY20hqLKTQBfCsVJDWC-1bHj4dtq4bzUFK9jnAjAYvOUci2R6v9Mlnq0fs48bhBfD_NqLx0aWj3MrScNfKySgsW2HAkhygU8V9tgFiUcbmsrzmP7Sepe4Vq4z7BwuUxkqoiTn54ZpOHYj6aSovLRPBQQtSCWB4BWG41VMF4Kd8ibkafrRcQGQ-nJX6CZ4PztI81J7rG8P5f2bS7gcdLtjSaWGfduXaBRjokAFDYPWauEZaK7KQONTvMneiNXjYkg9E-hb_5r5zYA22CzguBpAH9ONDwLSBXoROvD1jrsNBO_N8-f5KBY8-xmuqnJhaw-jHWETAsmRWQji2oyC_0Ovmgwi-l3YAqHq80xwl1SDvh-xV99mstFtArBLhuCxEbYwBJoOv2w0vgjHxPDFaZwG2cFsS-yIdNprILSp9tS1qvSE3YWMV8xQgR8JOvd8nnUBODCz-0hX5b3rD6bdI8ExvYNFbWdN9Hq5JWcThJwRHmPjwIUwpCrSPgvZ3N-MHCkeE4H9iZIEvmDia4_8mTJ0nkNXrlWqsS3O4won85nwTnxqrP7UBT0KjyTIJ3WJUyWxQw1kI_EljIT8vJ0ACfrpS87maUdDpRxsnHk9w4PC8jymtKfFeM=w1080-h1168-s-no-gm?authuser=0);
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            width: 100%;
+            aspect-ratio: 455 / 492;
+         }
     </style>
 </head>
 
 <body>
-    <h1>Hour</h1>
+
+    <h1>Get hour number</h1>
+    <p>
+        <label>
+            Date:
+            <input id="date" type="date">
+        </label>
+    </p>
+    <p>
+        <label>
+            Time:
+            <input id="time" type="time">
+        </label>
+    </p>
+
+    <p id="output-container">
+        <span id="output"></span>
+    </p>
+
+    <details id="details">
+        <summary>What is this good for?</summary>
+        <p id="good4img"></p>
+    </details>
+    <script>
+        document.documentElement.addEventListener("input", evt => {
+            console.log("got input", evt);
+            computeHour();
+        });
+        const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        const strISOdateNow = newLocalDate(Date.now()).toISOString();
+        console.log({ strISOdateNow });
+        const strYear = strISOdateNow.slice(0, 4);
+        console.log({ strYear });
+        const dateYear1 = new Date(strYear);
+        const dateYear = new Date(dateYear1.getTime() + 1);
+        const msYear = dateYear.getTime();
+        console.log({ dateYear, msYear });
+
+        const inpDate = document.getElementById("date");
+        inpDate.value = strISOdateNow.slice(0, 10);
+        const inpTime = document.getElementById("time");
+        inpTime.value = strISOdateNow.slice(11, 19);
+        computeHour();
+        function newLocalDate(msEpoch) {
+            const d = new Date(msEpoch - msTimeOffset);
+            return d;
+        }
+        function computeHour() {
+            // const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber + msTimeOffset);
+            const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber);
+            console.log("computeHour", { d });
+            const ms = d.getTime() - msYear;
+            const hour = Math.floor((ms / 1000) / 60 / 60);
+            console.log({ hour });
+            const eltHourOutput = document.getElementById("output");
+            eltHourOutput.textContent = `Hour number: ${hour}`;
+        }
+    </script>
 </body>

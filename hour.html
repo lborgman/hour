@@ -37,15 +37,16 @@
             margin-left: 0;
             margin-right: 0;
             background-color: darkolivegreen;
-         }
-         #good4img {
-            background-image: url(https://lh3.googleusercontent.com/pw/AP1GczM6hpEMY9EwipUAZVwxPLpWTrUUSty3lpeKP3ql_dK6rjcWx4EQof1SimyCO6JftmgAbklbfrwKJFWotJXuEfGfRemPqiOM_yGMwHe9jGg6tRCZeZKubxhSJ3DyY1wiby8Toqofll7rVLseKMmUR7q0F_QPUMiwSPdWBcWNb7Cn1Q01ge79V5dnqA1eDKVZ_e8AVwsgbogmPAD9gJ_90Ztr7APpV0oTk_BytQMYak59PI0h0JS4yNmMhpVr5z_QK3dcg7zLaVnG8WJLS9WxxbOky3DYiGv-0xCdupWfpOY20hqLKTQBfCsVJDWC-1bHj4dtq4bzUFK9jnAjAYvOUci2R6v9Mlnq0fs48bhBfD_NqLx0aWj3MrScNfKySgsW2HAkhygU8V9tgFiUcbmsrzmP7Sepe4Vq4z7BwuUxkqoiTn54ZpOHYj6aSovLRPBQQtSCWB4BWG41VMF4Kd8ibkafrRcQGQ-nJX6CZ4PztI81J7rG8P5f2bS7gcdLtjSaWGfduXaBRjokAFDYPWauEZaK7KQONTvMneiNXjYkg9E-hb_5r5zYA22CzguBpAH9ONDwLSBXoROvD1jrsNBO_N8-f5KBY8-xmuqnJhaw-jHWETAsmRWQji2oyC_0Ovmgwi-l3YAqHq80xwl1SDvh-xV99mstFtArBLhuCxEbYwBJoOv2w0vgjHxPDFaZwG2cFsS-yIdNprILSp9tS1qvSE3YWMV8xQgR8JOvd8nnUBODCz-0hX5b3rD6bdI8ExvYNFbWdN9Hq5JWcThJwRHmPjwIUwpCrSPgvZ3N-MHCkeE4H9iZIEvmDia4_8mTJ0nkNXrlWqsS3O4won85nwTnxqrP7UBT0KjyTIJ3WJUyWxQw1kI_EljIT8vJ0ACfrpS87maUdDpRxsnHk9w4PC8jymtKfFeM=w1080-h1168-s-no-gm?authuser=0);
+        }
+
+        #good4img {
+            NObackground-image: url(https://lh3.googleusercontent.com/pw/AP1GczM6hpEMY9EwipUAZVwxPLpWTrUUSty3lpeKP3ql_dK6rjcWx4EQof1SimyCO6JftmgAbklbfrwKJFWotJXuEfGfRemPqiOM_yGMwHe9jGg6tRCZeZKubxhSJ3DyY1wiby8Toqofll7rVLseKMmUR7q0F_QPUMiwSPdWBcWNb7Cn1Q01ge79V5dnqA1eDKVZ_e8AVwsgbogmPAD9gJ_90Ztr7APpV0oTk_BytQMYak59PI0h0JS4yNmMhpVr5z_QK3dcg7zLaVnG8WJLS9WxxbOky3DYiGv-0xCdupWfpOY20hqLKTQBfCsVJDWC-1bHj4dtq4bzUFK9jnAjAYvOUci2R6v9Mlnq0fs48bhBfD_NqLx0aWj3MrScNfKySgsW2HAkhygU8V9tgFiUcbmsrzmP7Sepe4Vq4z7BwuUxkqoiTn54ZpOHYj6aSovLRPBQQtSCWB4BWG41VMF4Kd8ibkafrRcQGQ-nJX6CZ4PztI81J7rG8P5f2bS7gcdLtjSaWGfduXaBRjokAFDYPWauEZaK7KQONTvMneiNXjYkg9E-hb_5r5zYA22CzguBpAH9ONDwLSBXoROvD1jrsNBO_N8-f5KBY8-xmuqnJhaw-jHWETAsmRWQji2oyC_0Ovmgwi-l3YAqHq80xwl1SDvh-xV99mstFtArBLhuCxEbYwBJoOv2w0vgjHxPDFaZwG2cFsS-yIdNprILSp9tS1qvSE3YWMV8xQgR8JOvd8nnUBODCz-0hX5b3rD6bdI8ExvYNFbWdN9Hq5JWcThJwRHmPjwIUwpCrSPgvZ3N-MHCkeE4H9iZIEvmDia4_8mTJ0nkNXrlWqsS3O4won85nwTnxqrP7UBT0KjyTIJ3WJUyWxQw1kI_EljIT8vJ0ACfrpS87maUdDpRxsnHk9w4PC8jymtKfFeM=w1080-h1168-s-no-gm?authuser=0);
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
             width: 100%;
             aspect-ratio: 455 / 492;
-         }
+        }
     </style>
 </head>
 
@@ -71,7 +72,9 @@
 
     <details id="details">
         <summary>What is this good for?</summary>
-        <p id="good4img"></p>
+        <p id="good4img">
+            It is a tool for <a id="a-photos">this problem</a>.
+        </p>
     </details>
     <script>
         document.documentElement.addEventListener("input", evt => {
@@ -93,6 +96,7 @@
         const inpTime = document.getElementById("time");
         inpTime.value = strISOdateNow.slice(11, 19);
         computeHour();
+        fixGood4();
         function newLocalDate(msEpoch) {
             const d = new Date(msEpoch - msTimeOffset);
             return d;
@@ -106,6 +110,23 @@
             console.log({ hour });
             const eltHourOutput = document.getElementById("output");
             eltHourOutput.textContent = `Hour number: ${hour}`;
+        }
+        function fixGood4() {
+            const linkPhotos1 = "https://photos.google.com/share/AF1QipNTmSaK-ShEcaUiOrQhPHEVqfhr5cpa0WU77k-5YcU30c4fQRJTgUtc3J6OeeCDqA?key=UXRkd0JWS2E0RG9DalhGUWhlMUVvTFZfV0ZVY0V3";
+            const linkPhotos2 = "https://photos.google.com/share/AF1QipNTmSaK-ShEcaUiOrQhPHEVqfhr5cpa0WU77k-5YcU30c4fQRJTgUtc3J6OeeCDqA/photo/AF1QipOyOsFSnHFjO1G__LGOx9ZxYeCxeDaGYvW_w7-h?key=UXRkd0JWS2E0RG9DalhGUWhlMUVvTFZfV0ZVY0V3";
+            const linkImage = "https://lh3.googleusercontent.com/pw/AP1GczPKkGPSTIQnWIjHapGZmbfxAc4nL0HdRbQa3_YP320MKPWySqQ_T5CUI02M6fAuMQMHyJQRpPv14P_4Su1DPERgtLEHGFMKFi-ZlQ-ZqQZs4ebd7asAhXjzH4xJFimUCXvSGbYapoV8APUIfjpE86n9gA=w910-h984-s-no-gm?authuser=0";
+            console.log({ linkImage });
+
+            const eltGood = document.getElementById("good4img");
+            const aPhotos = document.getElementById("a-photos");
+            aPhotos.href = linkPhotos1;
+
+            const img = new Image();
+            img.onload = () => {
+                eltGood.style.backgroundImage = `url(${linkImage})`;
+                eltGood.textContent = "";
+            }
+            img.src = linkImage;
         }
     </script>
 </body>

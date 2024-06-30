@@ -18,11 +18,27 @@
         }
 
         #output {
+            display: none;
             color: black;
             background-color: goldenrod;
             font-size: 1.4em;
             padding: 8px;
             border-radius: 8px;
+        }
+
+        #inp-hours {
+            color: black;
+            background-color: goldenrod;
+            font-size: 1.4em;
+            padding: 8px;
+            border-radius: 8px;
+            width: 4.0em;
+            text-align: right;
+        }
+
+        #up-down {
+            font-size: 2.4em;
+            margin-left: 30px;
         }
 
         #output-container {
@@ -59,18 +75,26 @@
     <p>
         <label>
             Date:
-            <input id="date" type="date">
+            <input id="inp-date" type="date">
         </label>
     </p>
     <p>
         <label>
             Time:
-            <input id="time" type="time">
+            <input id="inp-time" type="time">
         </label>
     </p>
 
-    <p id="output-container">
-        <span id="output"></span>
+    <p id="up-down">
+        &#8597;
+    </p>
+
+    <p>
+    <div> <span id="output"></span> </div>
+    <label>
+        Hour number:
+        <input id="inp-hours" type="number" />
+    </label>
     </p>
 
     <details id="details">
@@ -80,10 +104,6 @@
         </p>
     </details>
     <script>
-        document.documentElement.addEventListener("input", evt => {
-            console.log("got input", evt);
-            computeHour();
-        });
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;
         const strISOdateNow = newLocalDate(Date.now()).toISOString();
         console.log({ strISOdateNow });
@@ -94,17 +114,32 @@
         const msYear = dateYear.getTime();
         console.log({ dateYear, msYear });
 
-        const inpDate = document.getElementById("date");
+        const inpDate = document.getElementById("inp-date");
         inpDate.value = strISOdateNow.slice(0, 10);
-        const inpTime = document.getElementById("time");
+        const inpTime = document.getElementById("inp-time");
         inpTime.value = strISOdateNow.slice(11, 19);
-        computeHour();
+        const inpHours = document.getElementById("inp-hours");
+        computeHours();
         fixGood4();
         function newLocalDate(msEpoch) {
             const d = new Date(msEpoch - msTimeOffset);
             return d;
         }
-        function computeHour() {
+        function computeDateAndTime() {
+            const nHours = parseFloat(inpHours.value);
+            if (isNaN(nHours)) { return; }
+            const msHours = 60 * 60 * 1000 * nHours;
+            const ms = msHours + msYear;
+            const d = new Date(ms);
+            const strISO = d.toISOString();
+            console.log("computeDateAndTime", strISO);
+            const strDate = strISO.slice(0, 10);
+            const strTime = strISO.slice(11, 11+8);
+            console.log({ strDate, strTime });
+            inpDate.value = strDate;
+            inpTime.value = strTime;
+        }
+        function computeHours() {
             // const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber + msTimeOffset);
             const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber);
             console.log("computeHour", { d });
@@ -113,6 +148,8 @@
             console.log({ hour });
             const eltHourOutput = document.getElementById("output");
             eltHourOutput.textContent = `Hour number: ${hour}`;
+            // const inpHours = document.getElementById("inp-hours");
+            inpHours.value = hour;
         }
         function fixGood4() {
             const linkPhotos1 = "https://photos.google.com/share/AF1QipNTmSaK-ShEcaUiOrQhPHEVqfhr5cpa0WU77k-5YcU30c4fQRJTgUtc3J6OeeCDqA?key=UXRkd0JWS2E0RG9DalhGUWhlMUVvTFZfV0ZVY0V3";
@@ -131,5 +168,15 @@
             }
             img.src = linkImage;
         }
+        document.documentElement.addEventListener("input", evt => {
+            console.log("got input", evt);
+            const targ = evt.target;
+            if (targ === inpHours) {
+                computeDateAndTime();
+            } else {
+                computeHours();
+            }
+        });
+
     </script>
 </body>

@@ -26,6 +26,14 @@
             border-radius: 8px;
         }
 
+        .invalid-hour #inp-date {
+            opacity: 0.3;
+        }
+        .invalid-hour #inp-time {
+            opacity: 0.3;
+        }
+
+
         #inp-hours {
             color: black;
             background-color: goldenrod;
@@ -234,9 +242,11 @@
             if (!re.test(strVal)) {
                 inpHours.setCustomValidity("Number required");
                 inpHours.reportValidity();
+                document.documentElement.classList.add("invalid-hour");
                 return;
             }
             inpHours.setCustomValidity("");
+            document.documentElement.classList.remove("invalid-hour");
             const nHours = parseFloat(strVal);
             const msHours = 60 * 60 * 1000 * nHours;
             const ms = msHours + msYear;
@@ -252,7 +262,7 @@
             inpTime.dataset.time = strTime;
         }
         function computeHours() {
-            // const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber + msTimeOffset);
+            document.documentElement.classList.remove("invalid-hour");
             const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber);
             console.log("computeHour", { d });
             const ms = d.getTime() - msYear;
@@ -292,8 +302,10 @@
         // Force ISO format
         // https://stackoverflow.com/questions/7372038/is-there-any-way-to-change-input-type-date-format
         inpDate.addEventListener("change", evt => {
-            // if (!window.chrome) return;
-            inpDate.dataset.date = "hej";
+            // inpDate.dataset.date = "hej";
+            const d = new Date(inpDate.valueAsNumber);
+            inpDate.dataset.date = d.toISOString().slice(0, 10);
+
         })
 
     </script>

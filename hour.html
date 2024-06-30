@@ -58,25 +58,34 @@
             position: fixed;
             left: 0px;
             bottom: 0px;
-            padding: 10px;
-            padding-top: 20px;
-            width: 90%;
-            max-height: 80%;
+            min-width: calc(min(100vh, 100vw));
+            max-width: calc(min(100vh, 100vw));
+            max-height: calc(min(100vh, 100vw));
             margin-left: 0;
             margin-right: 0;
             background-color: darkolivegreen;
         }
+
         #expander-button {
             display: flex;
-            height: 32px;
+            flex-wrap: nowrap;
+            align-items: center;
+            min-height: 40px;
+            padding: 0px 10px;
             cursor: pointer;
+            NObackground-color: red;
+        }
+        #expander {
+            padding: 10px;
+            padding-top: 0;
         }
 
         #good4img {
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
-            width: 100%;
+            max-width: calc(min(85vw, 85vh));
+            max-height: calc(min(95vw, 95vh));
             aspect-ratio: 455 / 492;
         }
 

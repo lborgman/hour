@@ -86,7 +86,6 @@
             width: 110px;
             height: 20px;
             color: white;
-            NOcolor: red;
         }
 
         input[type=date].chrome:before {
@@ -112,6 +111,41 @@
             color: black;
             opacity: 1;
         }
+
+
+
+        input[type=time].chrome {
+            position: relative;
+            width: 110px;
+            height: 20px;
+            color: white;
+        }
+
+        input[type=time].chrome:before {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            content: attr(data-time);
+            display: inline-block;
+            color: black;
+            color: green;
+        }
+
+        input[type=time].chrome::-webkit-datetime-edit,
+        input[type=time].chrome::-webkit-inner-spin-button,
+        input[type=time].chrome::-webkit-clear-button {
+            display: none;
+        }
+
+        input[type=time].chrome::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 3px;
+            right: 0;
+            color: black;
+            opacity: 1;
+        }
+
+
 
         label {
             display: flex;
@@ -173,13 +207,17 @@
 
         const inpDate = document.getElementById("inp-date");
         inpDate.value = strISOdateNow.slice(0, 10);
+        const inpTime = document.getElementById("inp-time");
+        inpTime.value = strISOdateNow.slice(11, 19);
+
         if (window.chrome) {
             // Just support chromium browsers with a better date format
             inpDate.classList.add("chrome");
             inpDate.dataset.date = strISOdateNow.slice(0, 10);
+            inpTime.classList.add("chrome");
+            inpTime.dataset.time = strISOdateNow.slice(11, 11+5);
         }
-        const inpTime = document.getElementById("inp-time");
-        inpTime.value = strISOdateNow.slice(11, 19);
+
         const inpHours = document.getElementById("inp-hours");
         computeHours();
         fixGood4();
@@ -196,11 +234,12 @@
             const strISO = d.toISOString();
             console.log("computeDateAndTime", strISO);
             const strDate = strISO.slice(0, 10);
-            const strTime = strISO.slice(11, 11 + 8);
+            const strTime = strISO.slice(11, 11 + 5);
             console.log({ strDate, strTime });
             inpDate.value = strDate;
             inpDate.dataset.date = strDate;
             inpTime.value = strTime;
+            inpTime.dataset.time = strTime;
         }
         function computeHours() {
             // const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber + msTimeOffset);

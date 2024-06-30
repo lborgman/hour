@@ -66,36 +66,49 @@
             width: 100%;
             aspect-ratio: 455 / 492;
         }
+        #main {
+            display: flex;
+            justify-content: center;
+        }
+        #main h1 {
+            font-size: 1.7em;
+            color: goldenrod;
+        }
     </style>
 </head>
 
 <body>
 
-    <h1>Get hour number</h1>
-    <p>
-        <label>
-            Date:
-            <input id="inp-date" type="date">
-        </label>
-    </p>
-    <p>
-        <label>
-            Time:
-            <input id="inp-time" type="time">
-        </label>
-    </p>
+    <section id="main">
+        <section>
+            <h1>Get hour number</h1>
+            <p>
+                <label>
+                    Date:
+                    <input id="inp-date" type="date">
+                </label>
+            </p>
+            <p>
+                <label>
+                    Time:
+                    <input id="inp-time" type="time">
+                </label>
+            </p>
 
-    <p id="up-down">
-        &#8597;
-    </p>
+            <p id="up-down">
+                &#8597;
+            </p>
 
-    <p>
-    <div> <span id="output"></span> </div>
-    <label>
-        Hour number:
-        <input id="inp-hours" type="number" />
-    </label>
-    </p>
+            <p>
+            <div> <span id="output"></span> </div>
+            <label>
+                Hour number:
+                <input id="inp-hours" type="number" />
+            </label>
+            </p>
+        </section>
+    </section>
+
 
     <details id="details">
         <summary>What is this good for?</summary>
@@ -134,7 +147,7 @@
             const strISO = d.toISOString();
             console.log("computeDateAndTime", strISO);
             const strDate = strISO.slice(0, 10);
-            const strTime = strISO.slice(11, 11+8);
+            const strTime = strISO.slice(11, 11 + 8);
             console.log({ strDate, strTime });
             inpDate.value = strDate;
             inpTime.value = strTime;

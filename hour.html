@@ -66,13 +66,57 @@
             width: 100%;
             aspect-ratio: 455 / 492;
         }
+
         #main {
             display: flex;
             justify-content: center;
         }
+
         #main h1 {
             font-size: 1.7em;
             color: goldenrod;
+        }
+
+
+        /*
+            https://stackoverflow.com/questions/7372038/is-there-any-way-to-change-input-type-date-format
+        */
+        input[type=date].chrome {
+            position: relative;
+            width: 110px;
+            height: 20px;
+            NOcolor: white;
+            NOcolor: red;
+        }
+
+        input[type=date].chrome:before {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            content: attr(data-date);
+            display: inline-block;
+            color: black;
+            color: green;
+        }
+
+        input[type=date].chrome::-webkit-datetime-edit,
+        input[type=date].chrome::-webkit-inner-spin-button,
+        input[type=date].chrome::-webkit-clear-button {
+            display: none;
+        }
+
+        input[type=date].chrome::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 3px;
+            right: 0;
+            color: black;
+            opacity: 1;
+        }
+
+        label {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
     </style>
 </head>
@@ -129,6 +173,11 @@
 
         const inpDate = document.getElementById("inp-date");
         inpDate.value = strISOdateNow.slice(0, 10);
+        if (window.chrome) {
+            // Just support chromium browsers with a better date format
+            inpDate.classList.add("chrome");
+            inpDate.dataset.date = strISOdateNow.slice(0, 10);
+        }
         const inpTime = document.getElementById("inp-time");
         inpTime.value = strISOdateNow.slice(11, 19);
         const inpHours = document.getElementById("inp-hours");
@@ -150,6 +199,7 @@
             const strTime = strISO.slice(11, 11 + 8);
             console.log({ strDate, strTime });
             inpDate.value = strDate;
+            inpDate.dataset.date = strDate;
             inpTime.value = strTime;
         }
         function computeHours() {
@@ -190,6 +240,13 @@
                 computeHours();
             }
         });
+
+        // Force ISO format
+        // https://stackoverflow.com/questions/7372038/is-there-any-way-to-change-input-type-date-format
+        inpDate.addEventListener("change", evt => {
+            // if (!window.chrome) return;
+            inpDate.dataset.date = "hej";
+        })
 
     </script>
 </body>

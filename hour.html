@@ -29,6 +29,7 @@
         .invalid-hour #inp-date {
             opacity: 0.3;
         }
+
         .invalid-hour #inp-time {
             opacity: 0.3;
         }
@@ -53,7 +54,7 @@
             margin-top: 40px;
         }
 
-        #details {
+        #expander-wrapper {
             position: fixed;
             left: 0px;
             bottom: 0px;
@@ -65,9 +66,13 @@
             margin-right: 0;
             background-color: darkolivegreen;
         }
+        #expander-button {
+            display: flex;
+            height: 32px;
+            cursor: pointer;
+        }
 
         #good4img {
-            NObackground-image: url(https://lh3.googleusercontent.com/pw/AP1GczM6hpEMY9EwipUAZVwxPLpWTrUUSty3lpeKP3ql_dK6rjcWx4EQof1SimyCO6JftmgAbklbfrwKJFWotJXuEfGfRemPqiOM_yGMwHe9jGg6tRCZeZKubxhSJ3DyY1wiby8Toqofll7rVLseKMmUR7q0F_QPUMiwSPdWBcWNb7Cn1Q01ge79V5dnqA1eDKVZ_e8AVwsgbogmPAD9gJ_90Ztr7APpV0oTk_BytQMYak59PI0h0JS4yNmMhpVr5z_QK3dcg7zLaVnG8WJLS9WxxbOky3DYiGv-0xCdupWfpOY20hqLKTQBfCsVJDWC-1bHj4dtq4bzUFK9jnAjAYvOUci2R6v9Mlnq0fs48bhBfD_NqLx0aWj3MrScNfKySgsW2HAkhygU8V9tgFiUcbmsrzmP7Sepe4Vq4z7BwuUxkqoiTn54ZpOHYj6aSovLRPBQQtSCWB4BWG41VMF4Kd8ibkafrRcQGQ-nJX6CZ4PztI81J7rG8P5f2bS7gcdLtjSaWGfduXaBRjokAFDYPWauEZaK7KQONTvMneiNXjYkg9E-hb_5r5zYA22CzguBpAH9ONDwLSBXoROvD1jrsNBO_N8-f5KBY8-xmuqnJhaw-jHWETAsmRWQji2oyC_0Ovmgwi-l3YAqHq80xwl1SDvh-xV99mstFtArBLhuCxEbYwBJoOv2w0vgjHxPDFaZwG2cFsS-yIdNprILSp9tS1qvSE3YWMV8xQgR8JOvd8nnUBODCz-0hX5b3rD6bdI8ExvYNFbWdN9Hq5JWcThJwRHmPjwIUwpCrSPgvZ3N-MHCkeE4H9iZIEvmDia4_8mTJ0nkNXrlWqsS3O4won85nwTnxqrP7UBT0KjyTIJ3WJUyWxQw1kI_EljIT8vJ0ACfrpS87maUdDpRxsnHk9w4PC8jymtKfFeM=w1080-h1168-s-no-gm?authuser=0);
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
@@ -163,6 +168,29 @@
             gap: 10px;
             align-items: center;
         }
+
+
+
+        .expander {
+            display: grid;
+            grid-template-rows: 0fr;
+            overflow: hidden;
+            transition: grid-template-rows 1s;
+        }
+
+        .expander-content {
+            min-height: 0;
+            transition: visibility 1s;
+            visibility: hidden;
+        }
+
+        .expander.expanded {
+            grid-template-rows: 1fr;
+        }
+
+        .expander.expanded .expander-content {
+            visibility: visible;
+        }
     </style>
 </head>
 
@@ -199,12 +227,15 @@
     </section>
 
 
-    <details id="details">
-        <summary>What is this good for?</summary>
-        <p id="good4img">
-            It is a tool for <a id="a-photos">this problem</a>.
-        </p>
-    </details>
+    <div id="expander-wrapper">
+        <div id="expander-button" title="Show explanation">What is this good for?</div>
+        <div class="expander" id="expander">
+            <div id="good4img" class="expander-content">
+                It is a tool for <a id="a-photos">this problem</a>.
+            </div>
+        </div>
+    </div>
+
     <script>
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;
         const strISOdateNow = newLocalDate(Date.now()).toISOString();
@@ -306,7 +337,13 @@
             const d = new Date(inpDate.valueAsNumber);
             inpDate.dataset.date = d.toISOString().slice(0, 10);
 
-        })
+        });
+
+        const buttonExpander = document.getElementById("expander-button");
+        const divExpander = document.getElementById("expander");
+        buttonExpander.addEventListener("click", evt => {
+            expander.classList.toggle("expanded");
+        });
 
     </script>
 </body>

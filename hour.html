@@ -208,13 +208,13 @@
     <script>
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;
         const strISOdateNow = newLocalDate(Date.now()).toISOString();
-        console.log({ strISOdateNow });
+        // console.log({ strISOdateNow });
         const strYear = strISOdateNow.slice(0, 4);
-        console.log({ strYear });
+        // console.log({ strYear });
         const dateYear1 = new Date(strYear);
         const dateYear = new Date(dateYear1.getTime() + 1);
         const msYear = dateYear.getTime();
-        console.log({ dateYear, msYear });
+        // console.log({ dateYear, msYear });
 
         const inpDate = document.getElementById("inp-date");
         inpDate.value = strISOdateNow.slice(0, 10);
@@ -252,10 +252,10 @@
             const ms = msHours + msYear;
             const d = new Date(ms);
             const strISO = d.toISOString();
-            console.log("computeDateAndTime", strISO);
+            // console.log("computeDateAndTime", strISO);
             const strDate = strISO.slice(0, 10);
             const strTime = strISO.slice(11, 11 + 5);
-            console.log({ strDate, strTime });
+            // console.log({ strDate, strTime });
             inpDate.value = strDate;
             inpDate.dataset.date = strDate;
             inpTime.value = strTime;
@@ -264,10 +264,10 @@
         function computeHours() {
             document.documentElement.classList.remove("invalid-hour");
             const d = new Date(inpDate.valueAsNumber + inpTime.valueAsNumber);
-            console.log("computeHour", { d });
+            // console.log("computeHour", { d });
             const ms = d.getTime() - msYear;
             const hour = Math.floor((ms / 1000) / 60 / 60);
-            console.log({ hour });
+            // console.log({ hour });
             const eltHourOutput = document.getElementById("output");
             eltHourOutput.textContent = `Hour number: ${hour}`;
             inpHours.value = hour;
@@ -290,7 +290,7 @@
             img.src = linkImage;
         }
         document.documentElement.addEventListener("input", evt => {
-            console.log("got input", evt);
+            // console.log("got input", evt);
             const targ = evt.target;
             if (targ === inpHours) {
                 computeDateAndTime();

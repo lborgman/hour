@@ -18,7 +18,7 @@
           font-size: 300px;
           font-weight: 800;
           font-family: Arial, sans-serif;
-          fill: orange;
+          fill: green;
           "
       transform="
         rotate(-120, 256, 256)

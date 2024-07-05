@@ -3,7 +3,7 @@
     "name": "Hour Number - get hour number in year",
     "icons": [
         {
-            "src": "./hour.svg",
+            "src": "./hour2.svg",
             "type": "image/svg+xml",
             "sizes": "any"
         }

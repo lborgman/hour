@@ -248,6 +248,8 @@
     </div>
 
     <script>
+        navigator.serviceWorker.register('sw.js');
+
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;
         const strISOdateNow = newLocalDate(Date.now()).toISOString();
         // console.log({ strISOdateNow });

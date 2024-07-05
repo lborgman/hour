@@ -1,0 +1,13 @@
+{
+    "short_name": "Hour Number",
+    "name": "Hour Number - get hour number in year",
+    "icons": [
+        {
+            "src": "./hour.svg",
+            "type": "image/svg+xml",
+            "sizes": "any"
+        }
+    ],
+    "start_url": "./hour.html",
+    "display": "standalone"
+}

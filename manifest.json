@@ -5,7 +5,8 @@
         {
             "src": "./hour2.svg",
             "type": "image/svg+xml",
-            "sizes": "any"
+            "sizes": "any",
+            "purpose": "any"
         }
     ],
     "start_url": "./hour.html",

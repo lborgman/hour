@@ -3,9 +3,6 @@ module.exports = {
 	globPatterns: [
 		'**/*.{html,svg,json}'
 	],
-	swDest: 'sw.js',
-	ignoreURLParametersMatching: [
-		/^utm_/,
-		/^fbclid$/
-	]
+	swSrc: 'sw-input.js',
+	swDest: 'sw-workbox.js',
 };

@@ -216,7 +216,7 @@
 
     <section id="main">
         <section>
-            <img id="logo" src="./hour2.svg">
+            <img id="logo" src="./hour2.svg" alt="Logo">
             <h1>Get hour number</h1>
             <p>
                 <label>
@@ -255,8 +255,11 @@
         </div>
     </div>
 
-    <script>
-        navigator.serviceWorker.register('sw.js');
+    <script type="module">
+        // navigator.serviceWorker.register('sw.js');
+        const modPWA = await import("./pwa.js");
+        console.log({ modPWA });
+
 
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;
         const strISOdateNow = newLocalDate(Date.now()).toISOString();

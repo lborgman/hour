@@ -1,10 +1,10 @@
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
-const SW_VERSION = "0.0.47";
+const SW_VERSION = "0.0.48";
 const logColors = "color: green; background: yellow;";
 console.log(`%cThis is service worker SW_VERSION=${SW_VERSION}`, logColors);
 
-workbox.precaching.precacheAndRoute([{"revision":"82ad9bf8c66cff3be279e27e8df35327","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"2a7ad499bbb3d1444b3229a3e84e73aa","url":"manifest.json"}]);
+workbox.precaching.precacheAndRoute([{"revision":"121c161fd8ece981a7c9867780bd1de8","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"2a7ad499bbb3d1444b3229a3e84e73aa","url":"manifest.json"}]);
 
 
 

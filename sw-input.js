@@ -1,6 +1,6 @@
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
-const SW_VERSION = "0.0.47";
+const SW_VERSION = "0.0.48";
 const logColors = "color: green; background: yellow;";
 console.log(`%cThis is service worker SW_VERSION=${SW_VERSION}`, logColors);
 

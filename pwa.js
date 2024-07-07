@@ -1,28 +1,40 @@
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
+const styleInstallEvents = "background:red; color:blue;";
+
+let funVersion;
+const idDebugSection = "pwa-debug-output";
+let secDebug;
+let swVersion;
+let instWorkbox;
+let canUpdateNow = false;
+let ourUrlSW;
+
+
 
 logConsole("here is module pwa.js");
 
 if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
 
-const idDebugSection = "debug-section";
-let swVersion;
-let instWorkbox;
-let canUpdateNow = false;
-getWorkbox();
-addDebugSWinfo();
-checkPWA();
-setupForInstall();
-setupServiceWorker();
-
-const styleInstallEvents = "background:red; color:blue";
+export function start(urlSW) {
+    ourUrlSW = urlSW;
+    // getWorkbox();
+    addDebugSWinfo();
+    checkPWA();
+    setupForInstall();
+    setupServiceWorker();
+}
 
 function addDebugRow(txt) {
     logConsole(`checkPWA DEBUG: ${txt}`);
-    const secDebug = document.getElementById(idDebugSection);
-    if (!secDebug) return;
-    const pRow = mkElt("p", undefined, inner);
+    if (secDebug == undefined) {
+        secDebug = document.getElementById(idDebugSection);
+        console.log({ secDebug });
+        secDebug = secDebug || "no secdebug"
+    }
+    if (typeof secDebug == "string") return;
+    const pRow = mkElt("p", undefined, txt);
     secDebug.appendChild(pRow);
 }
 function addDebugLocation(loc) {
@@ -179,7 +191,6 @@ async function setupServiceWorker() {
     }
 }
 
-let funVersion;
 function saveVersion(ver) {
     swVersion = ver;
     addDebugRow(`Service Worker version: ${swVersion}`);
@@ -280,7 +291,8 @@ async function promptForUpdate() {
         dlgPromptUpdate.style.opacity = "0";
         setTimeout(() => {
             dlgPromptUpdate.classList.add("removing");
-            dlgPromptUpdate.remove(); }, 2000);
+            dlgPromptUpdate.remove();
+        }, 2000);
     }
     const btnSkip = mkElt("button", undefined, "Skip");
     const btnUpdate = mkElt("button", undefined, "Update");
@@ -391,7 +403,8 @@ export async function getWorkbox() {
     if (!instWorkbox) {
         // https://developer.chrome.com/docs/workbox/using-workbox-window
         const modWb = await import("https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-window.prod.mjs");
-        instWorkbox = new modWb.Workbox("/sw-workbox.js");
+        // instWorkbox = new modWb.Workbox("/sw-workbox.js");
+        instWorkbox = new modWb.Workbox(ourUrlSW);
     }
     if (instWorkbox) return instWorkbox
 }

@@ -1,5 +1,7 @@
-/* eslint no-debugger: 0 */
-console.log("here is module pwa.js");
+const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
+const logStrongStyle = logStyle + " font-size:18px;";
+
+logConsole("here is module pwa.js");
 
 if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
@@ -17,7 +19,7 @@ setupServiceWorker();
 const styleInstallEvents = "background:red; color:blue";
 
 function addDebugRow(txt) {
-    console.log("checkPWA DEBUG: ", txt);
+    logConsole(`checkPWA DEBUG: ${txt}`);
     const secDebug = document.getElementById(idDebugSection);
     if (!secDebug) return;
     const pRow = mkElt("p", undefined, inner);
@@ -40,7 +42,7 @@ async function addDebugSWinfo() {
 }
 
 async function checkPWA() {
-    console.log("checkPWA");
+    logConsole("checkPWA");
     // https://web.dev/learn/pwa/detection/
     window.addEventListener('DOMContentLoaded', () => {
         let displayMode = 'browser tab';
@@ -64,7 +66,7 @@ async function checkPWA() {
 }
 
 async function setupServiceWorker() {
-    console.log("setupServiceWorkder");
+    logConsole("setupServiceWorkder");
     // const swRegistration = await navigator.serviceWorker.register('/service-worker.js'); //notice the file name
     const wb = await getWorkbox();
 
@@ -76,43 +78,7 @@ async function setupServiceWorker() {
             // snackbar, broadcastToClients, keepAliveCounter, messageSW
             const msgType = evt.data.type;
             switch (msgType) {
-                case "keepAliveCounter":
-                    const counterValue = evt.data.counterValue;
-                    console.log({ counterValue });
-                    const idKA = "keepalive-counter";
-                    let eltKA = document.getElementById(idKA);
-                    if (!eltKA) {
-                        const s = [
-                            "display: inline-block",
-                            "background: greenyellow",
-                            "height: 1.5rem",
-                            "min-width: 5rem",
-                            "position: fixed",
-                            "right: 5px",
-                            "bottom: 5px",
-                            "padding: 0.2rem",
-                            "font-size: 1rem",
-                            "border: 1px solid green"
-                        ];
-                        const style = s.join(";");
-                        eltKA = mkElt("span", { style }, "eltKA");
-                        eltKA.id = idKA;
-                        document.body.appendChild(eltKA);
-                        eltKA.addEventListener("click", evt => {
-                            wb.messageSW({ type: "TEST_TIMER", seconds: 0 });
-                            console.log("removing soon");
-                            eltKA.style.backgroundColor = "red";
-                            setTimeout(() => {
-                                console.log("removing");
-                                eltKA.remove();
-                            }, 4000);
-                        });
-                    }
-                    eltKA.textContent = `${evt.data.counterValue} (${evt.data.total})`;
-                    break;
                 default:
-                    // const modMdc = await import("util-mdc");
-                    // modMdc.mkMDCsnackbar(evt.data.text, 10 * 1000);
                     new Snackbar(evt.data.text);
             }
             // }));
@@ -127,7 +93,7 @@ async function setupServiceWorker() {
             // tab is loaded under the control of the new service worker.
             // Depending on your web app, you may want to auto-save or
             // persist transient state before triggering the reload.
-            console.warn("event controlling, doing reload");
+            logStrongConsole("event controlling, doing reload");
             // debugger;
             window.location.reload();
         });
@@ -154,19 +120,19 @@ async function setupServiceWorker() {
     // Add an event listener to detect when the registered
     // service worker has installed but is waiting to activate.
     wb.addEventListener('waiting', (event) => {
-        console.warn("event waiting");
+        logStrongConsole("event waiting");
         showSkipWaitingPrompt(event);
     });
 
     wb.addEventListener('activated', async (event) => {
-        console.warn("event activated");
+        logStrongConsole("activated");
         const regSW = await navigator.serviceWorker.getRegistration();
         const swLoc = regSW.active.scriptURL;
-        console.log("%cservice worker activated, adding error event listener", "color yellow; font-size: 24px", { regSW });
+        logStrongConsole("activated, add error event listener", { regSW });
         regSW.active.addEventListener("error", evt => {
-            console.log("%cservice worker activated, error event", "color yellow; font-size: 24px");
+            logStrongConsole("activated, error event", evt);
         });
-        console.log("%cservice worker added error event listener", "color yellow; font-size: 24px", { regSW });
+        // logStrongConsole("service worker added error event listener");
         addDebugLocation(swLoc);
     });
 
@@ -213,10 +179,12 @@ async function setupServiceWorker() {
     }
 }
 
+let funVersion;
 function saveVersion(ver) {
     swVersion = ver;
     addDebugRow(`Service Worker version: ${swVersion}`);
-    console.warn(`%cService Worker version: ${swVersion}`, "font-size:18px;");
+    logStrongConsole(`Service Worker version: ${swVersion}`);
+    if (funVersion) { funVersion(swVersion); }
 }
 
 export function getDisplayMode() {
@@ -229,13 +197,13 @@ export function getDisplayMode() {
 }
 
 async function setupForInstall() {
-    console.log("setupForInstall");
+    logConsole("setupForInstall");
     // https://web.dev/customize-install/#criteria
     // Initialize deferredPrompt for use later to show browser install prompt.
     let deferredPrompt;
 
     window.addEventListener('beforeinstallprompt', (evt) => {
-        console.warn(`**** beforeinstallprompt' event was fired.`);
+        logStrongConsole(`**** beforeinstallprompt' event was fired.`);
         // Prevent the mini-infobar from appearing on mobile
         evt.preventDefault();
         // Stash the event so it can be triggered later.
@@ -253,7 +221,7 @@ async function setupForInstall() {
         // Clear the deferredPrompt so it can be garbage collected
         deferredPrompt = null;
         // Optionally, send analytics event to indicate successful install
-        console.log('PWA was installed');
+        logConsole('PWA was installed');
     });
 
     const dialogInstallPromotion = mkElt("dialog", { id: "div-please-install" }, [
@@ -271,7 +239,7 @@ async function setupForInstall() {
         // Wait for the user to respond to the prompt
         const { outcome } = await deferredPrompt.userChoice;
         // Optionally, send analytics event with outcome of user choice
-        console.log(`User response to the install prompt: ${outcome}`);
+        logConsole(`User response to the install prompt: ${outcome}`);
         // We've used the prompt, and can't use it again, throw it away
         deferredPrompt = null;
     });
@@ -305,33 +273,35 @@ async function setupForInstall() {
 
 let isPromptingForUpdate = false;
 
-let dlgPrompt;
+let dlgPromptUpdate;
 async function promptForUpdate() {
-    console.log("promptForUpdate 1");
-    function hidePrompt() {
-        dlgPrompt.style.opacity = "0";
-        setTimeout(() => { dlgPrompt.remove(); }, 2000);
+    logConsole("promptForUpdate 1");
+    function hidePromptUpdate() {
+        dlgPromptUpdate.style.opacity = "0";
+        setTimeout(() => {
+            dlgPromptUpdate.classList.add("removing");
+            dlgPromptUpdate.remove(); }, 2000);
     }
     const btnSkip = mkElt("button", undefined, "Skip");
     const btnUpdate = mkElt("button", undefined, "Update");
 
-    console.log("promptForUpdate 2");
+    logConsole("promptForUpdate 2");
     const wb = await getWorkbox();
-    console.log("promptForUpdate 3");
+    logConsole("promptForUpdate 3");
     const waitingVersion = await wb.messageSW({ type: 'GET_VERSION' });
-    console.log("promptForUpdate 4");
+    logConsole("promptForUpdate 4");
     const divErrLine = mkElt("p");
     const divPromptButtons = mkElt("p", undefined, [btnSkip, btnUpdate]);
     divPromptButtons.style = `
         display: flex;
         gap: 10px;
     `;
-    dlgPrompt = mkElt("dialog", { id: "prompt4update" }, [
+    dlgPromptUpdate = mkElt("dialog", { id: "prompt4update" }, [
         mkElt("p", undefined, `Update available: version ${waitingVersion}`),
         divErrLine,
         divPromptButtons
     ]);
-    dlgPrompt.style = `
+    dlgPromptUpdate.style = `
         display: none;
         background-color: yellow;
         color: black;
@@ -340,14 +310,14 @@ async function promptForUpdate() {
         opacity: 0;
         transition: opacity 2s;
     `;
-    document.body.appendChild(dlgPrompt);
-    dlgPrompt.showModal();
-    dlgPrompt.style.display = "unset";
-    setTimeout(() => { dlgPrompt.style.opacity = "1"; }, 200);
-    console.log("promptForUpdate 5");
-    console.log("promptForUpdate 6");
+    document.body.appendChild(dlgPromptUpdate);
+    dlgPromptUpdate.showModal();
+    dlgPromptUpdate.style.display = "unset";
+    setTimeout(() => { dlgPromptUpdate.style.opacity = "1"; }, 200);
+    logConsole("promptForUpdate 5");
+    logConsole("promptForUpdate 6");
 
-    console.log("promptForUpdate 7");
+    logConsole("promptForUpdate 7");
 
     return new Promise((resolve, reject) => {
         const evtUA = new CustomEvent("pwa-update-available");
@@ -355,14 +325,14 @@ async function promptForUpdate() {
         isPromptingForUpdate = true;
 
         btnSkip.addEventListener("click", evt => {
-            console.log("promptForUpdate 8");
-            hidePrompt();
-            setTimeout(()=>{ resolve(false); }, 2000);
+            logConsole("promptForUpdate 8");
+            hidePromptUpdate();
+            setTimeout(() => { resolve(false); }, 2000);
         });
         btnUpdate.addEventListener("click", evt => {
-            console.log("promptForUpdate 9");
-            dlgPrompt.textContent = "Updating, please wait ...";
-            dlgPrompt.style.boxShadow = "3px 5px 5px 12px rgba(255,50,0,0.75)";
+            logConsole("promptForUpdate 9");
+            dlgPromptUpdate.textContent = "Updating, please wait ...";
+            dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,50,0,0.75)";
             window.onbeforeunload = null;
             setTimeout(() => { resolve(true); }, 2000);
         });
@@ -426,12 +396,12 @@ export async function getWorkbox() {
     if (instWorkbox) return instWorkbox
 }
 
-export async function getSWversion() { return swVersion; }
+export async function setVersionFun(fun) { funVersion = fun; }
 
 export async function updateNow() {
-    console.log("pwa.updateNow, calling wb.messageSkipWaiting() 1");
+    logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 1");
     const wb = await getWorkbox();
-    console.log("pwa.updateNow, calling wb.messageSkipWaiting() 2");
+    logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 2");
     wb.messageSkipWaiting();
 }
 
@@ -443,8 +413,12 @@ export function hasUpdate() {
 }
 export function isShowingUpdatePrompt() {
     // return isPromptingForUpdate = true;
-    return !!dlgPrompt?.closest(":root");
+    return !!dlgPromptUpdate?.closest(":root");
 }
+
+function logConsole(msg) { console.log(`%cpwa.js`, logStyle, msg); }
+function logStrongConsole(msg) { console.log(`%cpwa.js`, logStrongStyle, msg); }
+function warnConsole(msg) { console.warn(`%cpwa.js`, logStyle, msg); }
 
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

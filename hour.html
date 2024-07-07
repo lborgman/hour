@@ -57,6 +57,13 @@
             margin-top: 40px;
         }
 
+        #version {
+            position: fixed;
+            right: 10px;
+            bottom: 70px;
+            font-size: 11px;
+            opacity: 0.5;
+        }
         #expander-wrapper {
             position: fixed;
             left: 0px;
@@ -209,6 +216,16 @@
             width: 100px;
             height: 100px;
         }
+
+        dialog::backdrop {
+            background-color: black;
+            opacity: 0.5;
+            transition: opacity 2s;
+        }
+
+        dialog.removing::backdrop {
+            opacity: 0;
+        }
     </style>
 </head>
 
@@ -244,6 +261,7 @@
             </p>
         </section>
     </section>
+    <div id="version">version</div>
 
 
     <div id="expander-wrapper">
@@ -259,6 +277,12 @@
         // navigator.serviceWorker.register('sw.js');
         const modPWA = await import("./pwa.js");
         console.log({ modPWA });
+        const versionFun = (ver) => {
+        console.log("GOT VERSION", ver);
+            const eltVersion = document.getElementById("version");
+            version.textContent = ver;
+        }
+        modPWA.setVersionFun(versionFun);
 
 
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;

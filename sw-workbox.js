@@ -23,6 +23,7 @@ self.addEventListener("message", errorHandlerAsyncEvent(async evt => {
     if (evt.data) {
         switch (msgType) {
             case 'GET_VERSION':
+                console.log(`%cservice-worker GET_VERSION: ${SW_VERSION}`, logColors);
                 // https://web.dev/two-way-communication-guide/
                 evt.ports[0].postMessage(SW_VERSION);
                 break;

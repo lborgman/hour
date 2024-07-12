@@ -84,7 +84,6 @@
             min-height: 40px;
             padding: 0px 10px;
             cursor: pointer;
-            NObackground-color: red;
         }
 
         #expander {
@@ -130,8 +129,6 @@
             display: inline-block;
             color: black;
             color: green;
-            NOtouch-action: none;
-            NOpointer-events: none;
             outline: 1px dotted red;
         }
 
@@ -275,7 +272,7 @@
             </p>
         </section>
     </section>
-    <div id="version">version</div>
+    <div id="version">NO VERSION</div>
 
 
     <div id="expander-wrapper">
@@ -295,10 +292,14 @@
             const eltVersion = document.getElementById("version");
             version.textContent = ver;
         }
-        const modPWA = await import("./pwa.js");
+        const pwaJs = `./pwa.js`;
+        const modPWA = await import(pwaJs);
         console.log({ modPWA });
         modPWA.setVersionFun(versionFun);
-        modPWA.start("./sw-workbox.js");
+        modPWA.startSW("./sw-workbox.js");
+    </script>
+
+    <script type="module">
 
 
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;

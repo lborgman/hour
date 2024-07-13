@@ -22,6 +22,7 @@ if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
 
 export function startSW(urlSW) {
+    logStrongConsole("got SW", ourUrlSW);
     ourUrlSW = urlSW;
     // getWorkbox();
     addDebugSWinfo();
@@ -286,7 +287,7 @@ async function setupForInstall() {
 
 }
 
-let isPromptingForUpdate = false;
+// let isPromptingForUpdate = false;
 
 let dlgPromptUpdate;
 async function promptForUpdate() {
@@ -338,7 +339,7 @@ async function promptForUpdate() {
     return new Promise((resolve, reject) => {
         const evtUA = new CustomEvent("pwa-update-available");
         window.dispatchEvent(evtUA);
-        isPromptingForUpdate = true;
+        // isPromptingForUpdate = true;
 
         btnSkip.addEventListener("click", evt => {
             logConsole("promptForUpdate 8");
@@ -403,7 +404,7 @@ class Snackbar {
 }
 
 
-export async function getWorkbox() {
+async function getWorkbox() {
     if (!instWorkbox) {
         // https://developer.chrome.com/docs/workbox/using-workbox-window
         const modWb = await import("https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-window.prod.mjs");
@@ -413,29 +414,25 @@ export async function getWorkbox() {
     if (instWorkbox) return instWorkbox
 }
 
-export async function setVersionFun(fun) { funVersion = fun; }
+export function setVersionFun(fun) {
+    funVersion = fun;
+    logStrongConsole("got version fun", funVersion);
+}
 
-export async function updateNow() {
+async function updateNow() {
     logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 1");
     const wb = await getWorkbox();
     logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 2");
     wb.messageSkipWaiting();
 }
 
-export function hasUpdate() {
-    // This does not work in error.js
-    // No idea why. Changing to isShowingUpdatePrompt in error.js
-    console.error("hasUpdate is obsolete");
-    return canUpdateNow;
-}
 export function isShowingUpdatePrompt() {
-    // return isPromptingForUpdate = true;
     return !!dlgPromptUpdate?.closest(":root");
 }
 
-function logConsole(msg) { console.log(`%cpwa.js`, logStyle, msg); }
-function logStrongConsole(msg) { console.log(`%cpwa.js`, logStrongStyle, msg); }
-function warnConsole(msg) { console.warn(`%cpwa.js`, logStyle, msg); }
+function logConsole(msg) { console.log(`%cpwa-nc.js`, logStyle, msg); }
+function logStrongConsole(msg) { console.log(`%cpwa-nc.js`, logStrongStyle, msg); }
+function warnConsole(msg) { console.warn(`%cpwa-nc.js`, logStyle, msg); }
 
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

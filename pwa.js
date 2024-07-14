@@ -5,14 +5,11 @@ logStrongConsole("Here is pwa.js, ver 3", import.meta.url);
 function logConsole(...msg) { console.log(`%cpwa.js`, logStyle, ...msg); }
 function logStrongConsole(...msg) { console.log(`%cpwa.js`, logStrongStyle, ...msg); }
 
-const url = new URL(import.meta.url);
-const params = [...url.searchParams.keys()];
+const urlPWA = new URL(import.meta.url);
+const params = [...urlPWA.searchParams.keys()];
 if (params.length > 0) console.error("pwa.js should have no parameters");
-if (url.hash.length > 0) console.error("pwa.js should have no hash");
+if (urlPWA.hash.length > 0) console.error("pwa.js should have no hash");
 
-url.pathname = url.pathname.replace("pwa.js", "pwa-not-cached.js");
-const ncVal = new Date().toISOString().slice(0, -5);
-url.searchParams.set("nocache", ncVal);
 
 let modNotCached;
 class WaitUntil {
@@ -26,13 +23,17 @@ class WaitUntil {
     tellReady() { this.#target.dispatchEvent(new Event(this.#evtName)); }
 }
 
-const waitUntilLoaded = new WaitUntil("pwa-loaded-not-cached");
+const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
 async function loadNotCached() {
+    urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
+    const ncVal = new Date().toISOString().slice(0, -5);
+    urlPWA.searchParams.set("nocache", ncVal);
     try {
-        modNotCached = await import(url.href);
-        waitUntilLoaded.tellReady();
+        modNotCached = await import(urlPWA.href);
+        waitUntilNotCachedLoaded.tellReady();
     } catch (err) {
-        console.error(err);
+        logStrongConsole(err.toString());
+        waitUntilNotCachedLoaded.tellReady();
     }
     logStrongConsole("loadNotCached", { modNotCached });
 }
@@ -44,15 +45,25 @@ if (navigator.onLine) {
 
 const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
 export async function setVersionFun(funVersion) {
-    await waitUntilLoaded.promReady();
-    modNotCached.setVersionFun(funVersion);
+    await waitUntilNotCachedLoaded.promReady();
+    const keyVersion = `PWA-version ${import.meta.url}`;
+    if (modNotCached) {
+        const funVerSet = (version) => {
+            localStorage.setItem(keyVersion, version);
+            funVersion(version);
+        }
+        modNotCached.setVersionFun(funVerSet);
+    } else {
+        const storedVersion = localStorage.getItem(keyVersion);
+        funVersion(storedVersion + " (offline)");
+    }
     waitUntilSetVerFun.tellReady();
 }
 
 export async function startSW(urlSW) {
-    await waitUntilLoaded.promReady();
+    await waitUntilNotCachedLoaded.promReady();
     await waitUntilSetVerFun.promReady();
-    return modNotCached.startSW(urlSW);
+    modNotCached?.startSW(urlSW);
 }
 
 

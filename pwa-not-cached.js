@@ -1,6 +1,15 @@
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
-const styleInstallEvents = "background:red; color:blue;";
+const styleInstallEvents = logStrongStyle + "color:red;";
+function logConsole(...msg) {
+    // console.log(`%cpwa-nc.js`, logStyle, ...msg);
+}
+function logStrongConsole(...msg) { console.log(`%cpwa-nc.js`, logStrongStyle, ...msg); }
+function warnConsole(...msg) { console.warn(`%cpwa-nc.js`, logStyle, ...msg); }
+function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, ...msg); }
+
+
+logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
 let funVersion;
 const idDebugSection = "pwa-debug-output";
@@ -16,13 +25,12 @@ const params = [...url.searchParams.keys()];
 if (params.length != 1 || params[0] != "nocache") {
     throw Error(`There should be only one parameter, "nocache"`);
 }
-logConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
 if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
 
 export function startSW(urlSW) {
-    logStrongConsole("got SW", ourUrlSW);
+    logStrongConsole("startSW", urlSW);
     ourUrlSW = urlSW;
     // getWorkbox();
     addDebugSWinfo();
@@ -74,10 +82,8 @@ async function checkPWA() {
     });
     // https://web.dev/get-installed-related-apps/
     const relatedApps = navigator.getInstalledRelatedApps ? await navigator.getInstalledRelatedApps() : [];
-    // console.log(`Related apps (${relatedApps.length}):`);
     addDebugRow(`Related apps (${relatedApps.length}):`);
     relatedApps.forEach((app) => {
-        console.log(app.id, app.platform, app.url);
         addDebugRow(`${app.id}, ${app.platform}, ${app.url}`);
     });
 }
@@ -92,6 +98,7 @@ async function setupServiceWorker() {
         // errorHandlerAsyncEvent(async evt => {
         async evt => {
             console.log("%cwb got message", "font-size: 18px; color: red", { evt });
+            logStrongConsole({ evt });
             // snackbar, broadcastToClients, keepAliveCounter, messageSW
             const msgType = evt.data.type;
             switch (msgType) {
@@ -262,26 +269,31 @@ async function setupForInstall() {
 
     const btnLater = mkElt("button", undefined, "Later");
     btnLater.addEventListener("click", (evt) => {
-        console.log("%c*** divInstallPromotion btnLater event .remove", styleInstallEvents);
+        // console.log("%c*** divInstallPromotion btnLater event .remove", styleInstallEvents);
+        logInstallEvent("dialog .remove");
         dialogInstallPromotion.remove();
     });
 
     dialogInstallPromotion.appendChild(btnInstall);
     dialogInstallPromotion.appendChild(btnLater);
     function showInstallPromotion() {
-        console.log("%cshowInstallPromotion", styleInstallEvents);
+        // console.log("%cshowInstallPromotion", styleInstallEvents);
+        logInstallEvent("showInstallPromotion");
         document.body.appendChild(dialogInstallPromotion);
         dialogInstallPromotion.showModal();
         dialogInstallPromotion.style.display = null;
     }
     function hideInstallPromotion() {
-        console.log("%chideInstallPromotion", styleInstallEvents);
+        // console.log("%chideInstallPromotion", styleInstallEvents);
+        logInstallEvent("hideInstallPromotion");
         dialogInstallPromotion.style.display = "none";
     }
     async function createEltInstallPromotion() {
-        console.log("%c**** createEltInstallPromotion START", styleInstallEvents);
+        // console.log("%c**** createEltInstallPromotion START", styleInstallEvents);
+        logInstallEvent("createEltInstallPromotion START");
         await promiseDOMready();
-        console.log("%c**** createEltInstallPromotion END, display = null", styleInstallEvents);
+        // console.log("%c**** createEltInstallPromotion END, display = null", styleInstallEvents);
+        logInstallEvent("createEltInstallPromotion END, display = null");
         showInstallPromotion();
     }
 
@@ -416,7 +428,7 @@ async function getWorkbox() {
 
 export function setVersionFun(fun) {
     funVersion = fun;
-    logStrongConsole("got version fun", funVersion);
+    logConsole("got version fun", funVersion);
 }
 
 async function updateNow() {
@@ -429,10 +441,6 @@ async function updateNow() {
 export function isShowingUpdatePrompt() {
     return !!dlgPromptUpdate?.closest(":root");
 }
-
-function logConsole(msg) { console.log(`%cpwa-nc.js`, logStyle, msg); }
-function logStrongConsole(msg) { console.log(`%cpwa-nc.js`, logStrongStyle, msg); }
-function warnConsole(msg) { console.warn(`%cpwa-nc.js`, logStyle, msg); }
 
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

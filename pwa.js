@@ -1,4 +1,9 @@
-console.log("Here is pwa.js, ver 3", import.meta.url);
+const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
+const logStrongStyle = logStyle + " font-size:18px;";
+logStrongConsole("Here is pwa.js, ver 3", import.meta.url);
+
+function logConsole(...msg) { console.log(`%cpwa.js`, logStyle, ...msg); }
+function logStrongConsole(...msg) { console.log(`%cpwa.js`, logStrongStyle, ...msg); }
 
 const url = new URL(import.meta.url);
 const params = [...url.searchParams.keys()];
@@ -29,7 +34,7 @@ async function loadNotCached() {
     } catch (err) {
         console.error(err);
     }
-    console.log(loadNotCached, { modNotCached });
+    logStrongConsole("loadNotCached", { modNotCached });
 }
 if (navigator.onLine) {
     loadNotCached();

@@ -25,16 +25,17 @@ class WaitUntil {
 
 const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
 async function loadNotCached() {
-    urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
-    const ncVal = new Date().toISOString().slice(0, -5);
-    urlPWA.searchParams.set("nocache", ncVal);
-    try {
-        modNotCached = await import(urlPWA.href);
-        waitUntilNotCachedLoaded.tellReady();
-    } catch (err) {
-        logStrongConsole(err.toString());
-        waitUntilNotCachedLoaded.tellReady();
+    if (navigator.onLine) {
+        urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
+        const ncVal = new Date().toISOString().slice(0, -5);
+        urlPWA.searchParams.set("nocache", ncVal);
+        try {
+            modNotCached = await import(urlPWA.href);
+        } catch (err) {
+            logStrongConsole(err.toString());
+        }
     }
+    waitUntilNotCachedLoaded.tellReady();
     logStrongConsole("loadNotCached", { modNotCached });
 }
 if (navigator.onLine) {

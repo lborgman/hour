@@ -25,7 +25,9 @@ class WaitUntil {
 
 const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
 async function loadNotCached() {
-    if (navigator.onLine) {
+    let isOnLine = navigator.onLine;
+    console.log({isOnLine});
+    if (isOnLine) {
         urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
         const ncVal = new Date().toISOString().slice(0, -5);
         urlPWA.searchParams.set("nocache", ncVal);

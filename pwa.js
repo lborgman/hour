@@ -56,13 +56,13 @@ export async function setVersionFun(funVersion) {
         // if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
         const funVerSet = (version) => {
             localStorage.setItem(keyVersion, version);
-            funVersion(version);
+            if (funVersion) { funVersion(version); }
         }
         await waitUntilNotCachedLoaded.promReady();
         modNotCached.setVersionFun(funVerSet);
     } else {
         const storedVersion = localStorage.getItem(keyVersion);
-        funVersion(storedVersion + " (offline)");
+        if (funVersion) { funVersion(storedVersion + " (offline)"); }
     }
     logStrongConsole("funVersion done");
     waitUntilSetVerFun.tellReady();
@@ -70,7 +70,7 @@ export async function setVersionFun(funVersion) {
 
 export async function startSW(urlSW) {
     if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
-    await waitUntilSetVerFun.promReady();
+    // await waitUntilSetVerFun.promReady();
     modNotCached?.startSW(urlSW);
 }
 

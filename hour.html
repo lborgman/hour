@@ -293,9 +293,9 @@
         }
         const pwaJs = `./pwa.js`;
         const modPWA = await import(pwaJs);
-        // console.log({ modPWA });
-        modPWA.setVersionFun(versionFun);
+        // modPWA.setVersionFun(versionFun);
         modPWA.startSW("./sw-workbox.js");
+        modPWA.setVersionFun(versionFun);
     </script>
 
     <script type="module">

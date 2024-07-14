@@ -288,13 +288,12 @@
 
     <script type="module">
         const versionFun = (ver) => {
-            // console.log("GOT VERSION", ver);
             const eltVersion = document.getElementById("version");
             version.textContent = ver;
         }
         const pwaJs = `./pwa.js`;
         const modPWA = await import(pwaJs);
-        console.log({ modPWA });
+        // console.log({ modPWA });
         modPWA.setVersionFun(versionFun);
         modPWA.startSW("./sw-workbox.js");
     </script>

@@ -1,8 +1,33 @@
+const SW_VERSION = "0.0.82";
+/*
+    This is a boilerplate for a simple PWA service worker.
+    When you want to create a new version of the service worker then
+    
+        1) Change the SW_VERSION above.
+        2) run "nxp workbox-cli injectManifest"
+
+    The web browser client should just do
+
+      import("pwa.js");
+
+    This in turn imports "pwa-not-cached.js".
+    Any changes should be done to this later file which is not cached.
+
+    This have been tested with GitHub Pages.
+*/
+
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
-const SW_VERSION = "0.0.73";
-const logColors = "color: green; background: yellow;";
-console.log(`%cThis is service worker SW_VERSION=${SW_VERSION}`, logColors);
+
+const logStyle = "background:blue; color:white; padding:2px; border-radius:2px;";
+const logStrongStyle = logStyle + " font-size:18px;";
+let swName = "PWA service worker";
+function logConsole(...msg) {
+    // console.log(`%c${swName}`, logStyle, ...msg);
+}
+function logStrongConsole(...msg) { console.log(`%c${swName}`, logStrongStyle, ...msg); }
+
+logStrongConsole(`Service worker SW_VERSION=${SW_VERSION}`);
 
 workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 
@@ -16,14 +41,16 @@ self.addEventListener("message", errorHandlerAsyncEvent(async evt => {
     if (evt.data?.eventType == "keyChanged") return;
 
     let msgType = "(NO TYPE)";
-    if (evt.data) {
-        msgType = evt.data.type;
-    }
-    console.log("%cservice-worker message", logColors, { evt, msgType });
+    if (evt.data) { msgType = evt.data.type; }
+    logConsole("Message", { evt, msgType });
     if (evt.data) {
         switch (msgType) {
+            case 'TELL_SW_NAME':
+                swName = evt.data.SW_NAME;
+                logStrongConsole(`got my file name "${swName}"`)
+                break;
             case 'GET_VERSION':
-                console.log(`%cservice-worker GET_VERSION: ${SW_VERSION}`, logColors);
+                logStrongConsole(`GET_VERSION: ${SW_VERSION}`);
                 // https://web.dev/two-way-communication-guide/
                 evt.ports[0].postMessage(SW_VERSION);
                 break;

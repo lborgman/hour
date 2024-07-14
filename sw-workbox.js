@@ -1,10 +1,35 @@
+const SW_VERSION = "0.0.82";
+/*
+    This is a boilerplate for a simple PWA service worker.
+    When you want to create a new version of the service worker then
+    
+        1) Change the SW_VERSION above.
+        2) run "nxp workbox-cli injectManifest"
+
+    The web browser client should just do
+
+      import("pwa.js");
+
+    This in turn imports "pwa-not-cached.js".
+    Any changes should be done to this later file which is not cached.
+
+    This have been tested with GitHub Pages.
+*/
+
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
-const SW_VERSION = "0.0.73";
-const logColors = "color: green; background: yellow;";
-console.log(`%cThis is service worker SW_VERSION=${SW_VERSION}`, logColors);
 
-workbox.precaching.precacheAndRoute([{"revision":"391f0073e2a9772f97e3431a8ac2835b","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"2a7ad499bbb3d1444b3229a3e84e73aa","url":"manifest.json"},{"revision":"46b1e6334e79024025e584298a9764ae","url":"OLDpwa.js"},{"revision":"4586c3e5f792429a4f7c13531171776f","url":"pwa-not-cached.js"},{"revision":"d7fb2bf0470fbe870a54ebe09a3e3cdc","url":"pwa.js"},{"revision":"9733a10260c76a60abfe450622e5201a","url":"workbox-config.js"}]);
+const logStyle = "background:blue; color:white; padding:2px; border-radius:2px;";
+const logStrongStyle = logStyle + " font-size:18px;";
+let swName = "PWA service worker";
+function logConsole(...msg) {
+    // console.log(`%c${swName}`, logStyle, ...msg);
+}
+function logStrongConsole(...msg) { console.log(`%c${swName}`, logStrongStyle, ...msg); }
+
+logStrongConsole(`Service worker SW_VERSION=${SW_VERSION}`);
+
+workbox.precaching.precacheAndRoute([{"revision":"9cf20b11fb7827066454b168d1b9ba3d","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"2a7ad499bbb3d1444b3229a3e84e73aa","url":"manifest.json"},{"revision":"46b1e6334e79024025e584298a9764ae","url":"OLDpwa.js"},{"revision":"83b9080584ce1ea8908d75355b0aa28a","url":"pwa-not-cached.js"},{"revision":"d7fb2bf0470fbe870a54ebe09a3e3cdc","url":"pwa.js"},{"revision":"9733a10260c76a60abfe450622e5201a","url":"workbox-config.js"}]);
 
 
 
@@ -16,14 +41,16 @@ self.addEventListener("message", errorHandlerAsyncEvent(async evt => {
     if (evt.data?.eventType == "keyChanged") return;
 
     let msgType = "(NO TYPE)";
-    if (evt.data) {
-        msgType = evt.data.type;
-    }
-    console.log("%cservice-worker message", logColors, { evt, msgType });
+    if (evt.data) { msgType = evt.data.type; }
+    logConsole("Message", { evt, msgType });
     if (evt.data) {
         switch (msgType) {
+            case 'TELL_SW_NAME':
+                swName = evt.data.SW_NAME;
+                logStrongConsole(`got my file name "${swName}"`)
+                break;
             case 'GET_VERSION':
-                console.log(`%cservice-worker GET_VERSION: ${SW_VERSION}`, logColors);
+                logStrongConsole(`GET_VERSION: ${SW_VERSION}`);
                 // https://web.dev/two-way-communication-guide/
                 evt.ports[0].postMessage(SW_VERSION);
                 break;

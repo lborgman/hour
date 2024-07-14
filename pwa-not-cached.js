@@ -20,7 +20,7 @@ let canUpdateNow = false;
 let ourUrlSW;
 
 
-const url = new URL(import.meta.url); 
+const url = new URL(import.meta.url);
 const params = [...url.searchParams.keys()];
 if (params.length != 1 || params[0] != "nocache") {
     throw Error(`There should be only one parameter, "nocache"`);
@@ -30,9 +30,8 @@ if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
 
 export function startSW(urlSW) {
-    logStrongConsole("startSW", urlSW);
     ourUrlSW = urlSW;
-    // getWorkbox();
+    logStrongConsole("startSW", ourUrlSW);
     addDebugSWinfo();
     checkPWA();
     setupForInstall();
@@ -43,7 +42,7 @@ function addDebugRow(txt) {
     logConsole(`checkPWA DEBUG: ${txt}`);
     if (secDebug == undefined) {
         secDebug = document.getElementById(idDebugSection);
-        console.log({ secDebug });
+        logConsole({ secDebug });
         secDebug = secDebug || "no secdebug"
     }
     if (typeof secDebug == "string") return;
@@ -94,16 +93,14 @@ async function setupServiceWorker() {
     const wb = await getWorkbox();
 
     wb.addEventListener("message",
-        // FIX-ME:
-        // errorHandlerAsyncEvent(async evt => {
+        // FIX-ME: errorHandlerAsyncEvent(async evt => {
         async evt => {
-            console.log("%cwb got message", "font-size: 18px; color: red", { evt });
-            logStrongConsole({ evt });
+            logStrongConsole("got message", { evt });
             // snackbar, broadcastToClients, keepAliveCounter, messageSW
             const msgType = evt.data.type;
             switch (msgType) {
                 default:
-                    new Snackbar(evt.data.text);
+                    mkSnackbar(evt.data.text);
             }
             // }));
         });
@@ -186,11 +183,14 @@ async function setupServiceWorker() {
         // (this happens during "hard reload" and when Lighthouse tests).
         // https://www.youtube.com/watch?v=1d3KgacJv1I
         if (navigator.serviceWorker.controller !== null) {
-            const messageChannel = new MessageChannel();
-            messageChannel.port1.onmessage = (event) => {
-                saveVersion(event.data);
-            };
-            navigator.serviceWorker.controller.postMessage({ type: "GET_VERSION" }, [messageChannel.port2]);
+            const messageChannelName = new MessageChannel();
+            // navigator.serviceWorker.controller.postMessage({ type: "TELL_SW_NAME", SW_NAME: ourUrlSW }, [messageChannelName.port2]);
+            navigator.serviceWorker.controller.postMessage({ type: "TELL_SW_NAME", SW_NAME: ourUrlSW });
+
+            const messageChannelVersion = new MessageChannel();
+            messageChannelVersion.port1.onmessage = (event) => { saveVersion(event.data); };
+            navigator.serviceWorker.controller.postMessage({ type: "GET_VERSION" }, [messageChannelVersion.port2]);
+
         } else {
             addDebugRow(`Service Worker version: controller is null`);
         }
@@ -203,6 +203,7 @@ async function setupServiceWorker() {
     }
 }
 
+// function saveSWname(serviceWorkerName) { swName = serviceWorkerName; }
 function saveVersion(ver) {
     swVersion = ver;
     addDebugRow(`Service Worker version: ${swVersion}`);
@@ -269,7 +270,6 @@ async function setupForInstall() {
 
     const btnLater = mkElt("button", undefined, "Later");
     btnLater.addEventListener("click", (evt) => {
-        // console.log("%c*** divInstallPromotion btnLater event .remove", styleInstallEvents);
         logInstallEvent("dialog .remove");
         dialogInstallPromotion.remove();
     });
@@ -277,22 +277,18 @@ async function setupForInstall() {
     dialogInstallPromotion.appendChild(btnInstall);
     dialogInstallPromotion.appendChild(btnLater);
     function showInstallPromotion() {
-        // console.log("%cshowInstallPromotion", styleInstallEvents);
         logInstallEvent("showInstallPromotion");
         document.body.appendChild(dialogInstallPromotion);
         dialogInstallPromotion.showModal();
         dialogInstallPromotion.style.display = null;
     }
     function hideInstallPromotion() {
-        // console.log("%chideInstallPromotion", styleInstallEvents);
         logInstallEvent("hideInstallPromotion");
         dialogInstallPromotion.style.display = "none";
     }
     async function createEltInstallPromotion() {
-        // console.log("%c**** createEltInstallPromotion START", styleInstallEvents);
         logInstallEvent("createEltInstallPromotion START");
         await promiseDOMready();
-        // console.log("%c**** createEltInstallPromotion END, display = null", styleInstallEvents);
         logInstallEvent("createEltInstallPromotion END, display = null");
         showInstallPromotion();
     }
@@ -392,15 +388,14 @@ function mkElt(type, attrib, inner) {
     }
     return elt;
 }
-class Snackbar {
-    constructor(msg, color, bgColor, left, bottom, msTime) {
-        const snackbar = mkElt("aside");
-        snackbar.textContent = msg;
-        color = color || "red";
-        bgColor = bgColor || "black";
-        left = left || 20;
-        bottom = bottom || 20;
-        snackbar.style = `
+function mkSnackbar(msg, color, bgColor, left, bottom, msTime) {
+    const snackbar = mkElt("aside");
+    snackbar.textContent = msg;
+    color = color || "red";
+    bgColor = bgColor || "black";
+    left = left || 20;
+    bottom = bottom || 20;
+    snackbar.style = `
             display: flex;
             color: ${color};
             background-color: ${bgColor};
@@ -410,9 +405,8 @@ class Snackbar {
             padding: 4px;
             border-radius: 4px;
         `;
-        document.body.appendChild(snackbar);
-        setTimeout(() => snackbar.remove(), msTime);
-    }
+    document.body.appendChild(snackbar);
+    setTimeout(() => snackbar.remove(), msTime);
 }
 
 
@@ -420,7 +414,6 @@ async function getWorkbox() {
     if (!instWorkbox) {
         // https://developer.chrome.com/docs/workbox/using-workbox-window
         const modWb = await import("https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-window.prod.mjs");
-        // instWorkbox = new modWb.Workbox("/sw-workbox.js");
         instWorkbox = new modWb.Workbox(ourUrlSW);
     }
     if (instWorkbox) return instWorkbox

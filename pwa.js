@@ -31,10 +31,36 @@ async function loadNotCached() {
         urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
         const ncVal = new Date().toISOString().slice(0, -5);
         urlPWA.searchParams.set("nocache", ncVal);
+        let href = urlPWA.href;
         try {
-            modNotCached = await import(urlPWA.href);
+            modNotCached = await import(href);
         } catch (err) {
             logStrongConsole(err.toString());
+        }
+        if (!modNotCached) {
+            // If not loaded get http status code
+            const f = await fetch(href);
+            console.log(f);
+            const msg = `*ERROR* http status ${f.status}, could not fetch file ${href}`;
+            console.error(msg);
+            const eltErr = document.createElement("dialog");
+            eltErr.textContent = msg;
+            eltErr.style = `
+                background-color: red;
+                color: yellow;
+                padding: 1rem;
+                font-size: 1.2rem;
+                max-width: 300px;
+            `;
+            const btnClose = document.createElement("button");
+            btnClose.textContent = "Close";
+            btnClose.addEventListener("click", evt => { eltErr.remove(); })
+            const pClose = document.createElement("p");
+            pClose.appendChild(btnClose);
+            eltErr.appendChild(pClose);
+
+            document.body.appendChild(eltErr);
+            eltErr.showModal();
         }
     } else {
         logStrongConsole("offline, can't load pwa-not-cached.js");
@@ -59,7 +85,7 @@ export async function setVersionFun(funVersion) {
             if (funVersion) { funVersion(version); }
         }
         await waitUntilNotCachedLoaded.promReady();
-        modNotCached.setVersionFun(funVerSet);
+        modNotCached?.setVersionFun(funVerSet);
     } else {
         const storedVersion = localStorage.getItem(keyVersion);
         if (funVersion) { funVersion(storedVersion + " (offline)"); }

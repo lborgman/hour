@@ -328,12 +328,12 @@ async function promptForUpdate() {
     ]);
     dlgPromptUpdate.style = `
         display: none;
-        background-color: yellow;
-        color: black;
-        border: 2px solid red;
+        background-color: blue;
+        color: white;
+        border: 2px solid white;
         border-radius: 4px;
         opacity: 0;
-        transition: opacity 2s;
+        transition: opacity 1s;
     `;
     document.body.appendChild(dlgPromptUpdate);
     dlgPromptUpdate.showModal();
@@ -357,9 +357,10 @@ async function promptForUpdate() {
         btnUpdate.addEventListener("click", evt => {
             logConsole("promptForUpdate 9");
             dlgPromptUpdate.textContent = "Updating, please wait ...";
-            dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,50,0,0.75)";
+            dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,255,255,0.75)";
             window.onbeforeunload = null;
-            setTimeout(() => { resolve(true); }, 2000);
+            setTimeout(() => { dlgPromptUpdate.style.opacity = "0"; }, 6000);
+            setTimeout(() => { resolve(true); }, 7000);
         });
     });
 }

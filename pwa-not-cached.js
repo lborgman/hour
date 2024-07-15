@@ -256,7 +256,7 @@ async function setupForInstall() {
         ]),
         mkElt("p", undefined, ["navigator.userAgentData.platform: ", navigator.userAgentData?.platform]),
     ]);
-    dialogInstallPromotion.style.display = "none";
+    // dialogInstallPromotion.style.display = "none";
     const btnInstall = mkElt("button", undefined, "Install");
     btnInstall.addEventListener("click", async (evt) => {
         deferredPrompt.prompt();
@@ -280,11 +280,11 @@ async function setupForInstall() {
         logInstallEvent("showInstallPromotion");
         document.body.appendChild(dialogInstallPromotion);
         dialogInstallPromotion.showModal();
-        dialogInstallPromotion.style.display = null;
+        // dialogInstallPromotion.style.display = null;
     }
     function hideInstallPromotion() {
         logInstallEvent("hideInstallPromotion");
-        dialogInstallPromotion.style.display = "none";
+        // dialogInstallPromotion.style.display = "none";
     }
     async function createEltInstallPromotion() {
         logInstallEvent("createEltInstallPromotion START");
@@ -300,12 +300,11 @@ async function setupForInstall() {
 let dlgPromptUpdate;
 async function promptForUpdate() {
     logConsole("promptForUpdate 1");
-    function hidePromptUpdate() {
-        dlgPromptUpdate.style.opacity = "0";
-        setTimeout(() => {
-            dlgPromptUpdate.classList.add("removing");
-            dlgPromptUpdate.remove();
-        }, 2000);
+    const secDlgTransition = 1;
+    const msDlgTransition = 1000 * secDlgTransition;
+    function removePromptUpdate() {
+        dlgPromptUpdate.classList.add("transparent");
+        setTimeout(() => { dlgPromptUpdate.remove(); }, msDlgTransition);
     }
     const btnSkip = mkElt("button", undefined, "Skip");
     const btnUpdate = mkElt("button", undefined, "Update");
@@ -316,29 +315,18 @@ async function promptForUpdate() {
     const waitingVersion = await wb.messageSW({ type: 'GET_VERSION' });
     logConsole("promptForUpdate 4");
     const divErrLine = mkElt("p");
-    const divPromptButtons = mkElt("p", undefined, [btnSkip, btnUpdate]);
-    divPromptButtons.style = `
-        display: flex;
-        gap: 10px;
-    `;
-    dlgPromptUpdate = mkElt("dialog", { id: "pwa2-dialog-update", class: "pwa2-dialog" }, [
+    const divPromptButtons = mkElt("p", undefined, [btnUpdate, btnSkip]);
+    dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
         mkElt("p", undefined, `Update available: version ${waitingVersion}`),
         divErrLine,
         divPromptButtons
     ]);
-    dlgPromptUpdate.style = `
-        display: none;
-        background-color: blue;
-        color: white;
-        border: 2px solid white;
-        border-radius: 4px;
-        opacity: 0;
-        transition: opacity 1s;
-    `;
     document.body.appendChild(dlgPromptUpdate);
     dlgPromptUpdate.showModal();
-    dlgPromptUpdate.style.display = "unset";
-    setTimeout(() => { dlgPromptUpdate.style.opacity = "1"; }, 200);
+    // dlgPromptUpdate.style.display = "unset";
+    setTimeout(() => {
+        // dlgPromptUpdate.style.opacity = "1";
+    }, 200);
     logConsole("promptForUpdate 5");
     logConsole("promptForUpdate 6");
 
@@ -347,20 +335,23 @@ async function promptForUpdate() {
     return new Promise((resolve, reject) => {
         const evtUA = new CustomEvent("pwa-update-available");
         window.dispatchEvent(evtUA);
-        // isPromptingForUpdate = true;
 
         btnSkip.addEventListener("click", evt => {
             logConsole("promptForUpdate 8");
-            hidePromptUpdate();
-            setTimeout(() => { resolve(false); }, 2000);
+            removePromptUpdate();
+            setTimeout(() => { resolve(false); }, msDlgTransition);
         });
         btnUpdate.addEventListener("click", evt => {
             logConsole("promptForUpdate 9");
             dlgPromptUpdate.textContent = "Updating, please wait ...";
-            dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,255,255,0.75)";
+            // dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,255,255,0.75)";
+            dlgPromptUpdate.classList.add("updating");
             window.onbeforeunload = null;
-            setTimeout(() => { dlgPromptUpdate.style.opacity = "0"; }, 6000);
-            setTimeout(() => { resolve(true); }, 7000);
+            const msPleaseWait = 6000;
+            setTimeout(() => {
+                dlgPromptUpdate.classList.add("transparent");
+            }, msPleaseWait);
+            setTimeout(() => { resolve(true); }, msPleaseWait + msDlgTransition);
         });
     });
 }

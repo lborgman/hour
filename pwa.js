@@ -66,6 +66,7 @@ async function loadNotCached() {
         logStrongConsole("offline, can't load pwa-not-cached.js");
     }
     waitUntilNotCachedLoaded.tellReady();
+    addCSS();
     logStrongConsole("loadNotCached", { modNotCached });
 }
 if (navigator.onLine) {
@@ -105,4 +106,53 @@ export async function startSW(urlSW) {
 // https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
 function simpleBlockUntilEvent(targ, evtName) {
     return new Promise(resolve => targ.addEventListener(evtName, resolve, { passive: true, once: true }));
+}
+
+function addCSS() {
+    const idCSS = "css-pwa.js";
+    const eltOld = document.getElementById(idCSS);
+    if (eltOld) {
+        return;
+    }
+    const eltCSS = document.createElement("style");
+    eltCSS.id = idCSS;
+    /* transition: opacity ${secDlgTransition}s; */
+    eltCSS.textContent =
+        `
+        dialog#pwa-dialog-update {
+            background-color: blue;
+            color: white;
+            border: 2px solid white;
+            border-radius: 4px;
+            opacity: 1;
+            transition: opacity 1s;
+        }
+
+        dialog#pwa-dialog-update>p {
+            display: flex;
+            gap: 10px;
+        }
+
+        dialog#pwa-dialog-update::backdrop {
+            background-color: black;
+            opacity: 0.5;
+            /* not inherited by default */
+            transition: inherit;
+        }
+
+        dialog#pwa-dialog-update.transparent {
+            opacity: 0;
+        }
+
+        dialog#pwa-dialog-update.transparent::backdrop {
+            opacity: 0;
+        }
+
+        dialog#pwa-dialog-update.updating {
+            box-shadow: 3px 5px 5px 12px rgba(255,255,127,0.75);
+        }
+
+    `;
+    const style1 = document.querySelector("style");
+    document.head.insertBefore(eltCSS, style1);
 }

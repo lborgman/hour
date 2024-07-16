@@ -123,10 +123,10 @@ function addCSS() {
     eltCSS.textContent =
         `
         dialog#pwa-dialog-update {
-            NObackground-color: blue;
             background: linear-gradient(200deg, #4b6cb7 0%, #182848 100%);
             background: linear-gradient(240deg, #00819c 0%, #3a47d5 100%);
             background: linear-gradient(240deg, #00819c 0%, #2b35a3 100%);
+            font-size: 1.2rem;
             color: white;
             border: 2px solid white;
             border-radius: 4px;
@@ -134,7 +134,11 @@ function addCSS() {
             transition: opacity 1s;
         }
 
-        dialog#pwa-dialog-update>p {
+        dialog#pwa-dialog-update>p>button {
+            font-size: 1rem;
+        }
+
+        dialog#pwa-dialog-update>p:last-child {
             display: flex;
             gap: 10px;
         }

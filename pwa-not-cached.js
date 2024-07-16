@@ -136,7 +136,7 @@ async function setupServiceWorker() {
 
         if (updateAccepted) {
             // wb.messageSkipWaiting();
-            setTimeout(() => wb.messageSkipWaiting(), msPleaseWaitUpdating );
+            setTimeout(() => wb.messageSkipWaiting(), msPleaseWaitUpdating);
         }
     };
 
@@ -321,7 +321,10 @@ async function promptForUpdate() {
     const divPromptButtons = mkElt("p", undefined, [btnUpdate, btnSkip]);
     dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
         mkElt("h2", undefined, updateTitle),
-        mkElt("p", undefined, `Update available: version ${waitingVersion}`),
+        mkElt("p", undefined, [
+            "Update available:",
+            mkElt("div", undefined, `version ${waitingVersion}`)
+        ]),
         divErrLine,
         divPromptButtons
     ]);

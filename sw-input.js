@@ -1,4 +1,4 @@
-const SW_VERSION = "0.9.077";
+const SW_VERSION = "0.9.084";
 /*
     This is a boilerplate for a simple PWA service worker.
     When you want to create a new version of the service worker then

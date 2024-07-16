@@ -1,4 +1,4 @@
-const SW_VERSION = "0.9.077";
+const SW_VERSION = "0.9.084";
 /*
     This is a boilerplate for a simple PWA service worker.
     When you want to create a new version of the service worker then
@@ -29,7 +29,7 @@ function logStrongConsole(...msg) { console.log(`%c${swName}`, logStrongStyle, .
 
 logStrongConsole(`Service worker SW_VERSION=${SW_VERSION}`);
 
-workbox.precaching.precacheAndRoute([{"revision":"fac6ef7b99fae14c752accc932308434","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"bd8902a5e61cc2f23f87b2e8c713e08e","url":"manifest.json"},{"revision":"9619c546c6e8efffbe279f9d0bb5bc9a","url":"pwa-not-cached.js"},{"revision":"c6d84fe9611f399a7eb5813715e30e38","url":"pwa.js"},{"revision":"9733a10260c76a60abfe450622e5201a","url":"workbox-config.js"}]);
+workbox.precaching.precacheAndRoute([{"revision":"607c7d885f084a2ee967bc52e718237e","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"bd8902a5e61cc2f23f87b2e8c713e08e","url":"manifest.json"},{"revision":"8bca21f24b7e49854afb1bacdc19c9b5","url":"pwa-not-cached.js"},{"revision":"5182ec0d941c71db68a786f17a2c6d52","url":"pwa.js"},{"revision":"9733a10260c76a60abfe450622e5201a","url":"workbox-config.js"}]);
 
 
 

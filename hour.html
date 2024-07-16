@@ -315,7 +315,7 @@
     <div id="expander-wrapper">
         <div id="expander-button" title="Show explanation">
             What is this good for?
-            <button id="expander-close">Close</button>
+            <span id="expander-close" title="open/close">&#10006;</span>
         </div>
         <div class="expander" id="expander">
             <div class="expander-content">
@@ -383,6 +383,8 @@
             const d = new Date(msEpoch - msTimeOffset);
             return d;
         }
+
+        // https://www.geeksforgeeks.org/calculate-current-week-number-in-javascript/
         function computeDateAndTime() {
             const strVal = inpHours.value.trim();
             const re = /^[0-9]+(\.[0-9]*)?$/;

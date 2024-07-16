@@ -11,6 +11,7 @@ function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, .
 
 logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
+const msPleaseWaitUpdating = 6000;
 let funVersion;
 const idDebugSection = "pwa-debug-output";
 let secDebug;
@@ -134,7 +135,8 @@ async function setupServiceWorker() {
         const updateAccepted = await promptForUpdate();
 
         if (updateAccepted) {
-            wb.messageSkipWaiting();
+            // wb.messageSkipWaiting();
+            setTimeout(() => wb.messageSkipWaiting(), msPleaseWaitUpdating );
         }
     };
 
@@ -307,10 +309,6 @@ async function promptForUpdate() {
     logConsole("promptForUpdate 1");
     const secDlgTransition = 1;
     const msDlgTransition = 1000 * secDlgTransition;
-    function removePromptUpdate() {
-        dlgPromptUpdate.classList.add("transparent");
-        setTimeout(() => { dlgPromptUpdate.remove(); }, msDlgTransition);
-    }
     const btnSkip = mkElt("button", undefined, "Skip");
     const btnUpdate = mkElt("button", undefined, "Update");
 
@@ -343,8 +341,9 @@ async function promptForUpdate() {
 
         btnSkip.addEventListener("click", evt => {
             logConsole("promptForUpdate 8");
-            removePromptUpdate();
-            setTimeout(() => { resolve(false); }, msDlgTransition);
+            resolve(false);
+            dlgPromptUpdate.classList.add("transparent");
+            setTimeout(() => { dlgPromptUpdate.remove(); }, msDlgTransition);
         });
         btnUpdate.addEventListener("click", evt => {
             logConsole("promptForUpdate 9");
@@ -352,11 +351,13 @@ async function promptForUpdate() {
             // dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,255,255,0.75)";
             dlgPromptUpdate.classList.add("updating");
             window.onbeforeunload = null;
-            const msPleaseWait = 6000;
+            resolve(true);
+            funVersion("Updating...");
             setTimeout(() => {
+                console.log("adding class transparent");
                 dlgPromptUpdate.classList.add("transparent");
-            }, msPleaseWait);
-            setTimeout(() => { resolve(true); }, msPleaseWait + msDlgTransition);
+            }, msPleaseWaitUpdating);
+            // setTimeout(() => { dlgPromptUpdate.remove(); }, msPleaseWait + msDlgTransition);
         });
     });
 }

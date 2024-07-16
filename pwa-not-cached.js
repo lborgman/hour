@@ -11,7 +11,7 @@ function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, .
 
 logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
-const msPleaseWaitUpdating = 6000;
+const msPleaseWaitUpdating = 4000;
 let funVersion;
 const idDebugSection = "pwa-debug-output";
 let secDebug;

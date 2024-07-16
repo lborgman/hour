@@ -129,8 +129,8 @@
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
-            max-width: calc(min(85vw, 85vh));
-            max-height: calc(min(95vw, 95vh));
+            max-width: calc(min(95vw, 95vh));
+            max-height: calc(min(95vw, 95vh) - 60px);
             aspect-ratio: 455 / 492;
         }
 
@@ -303,8 +303,13 @@
     <div id="expander-wrapper">
         <div id="expander-button" title="Show explanation">What is this good for?</div>
         <div class="expander" id="expander">
-            <div id="good4img" class="expander-content">
-                It is a tool for <a id="a-photos">this problem</a>.
+            <div class="expander-content">
+                <div id="good4img">
+                    It is a tool for <a id="a-photos">this problem</a>.
+                </div>
+                <p style="min-height: 40px;">
+                    Source code for this app is <a href="https://github.com/lborgman/hour">here</a>.
+                </p>
             </div>
         </div>
     </div>

@@ -320,6 +320,7 @@ async function promptForUpdate() {
     const divErrLine = mkElt("p");
     const divPromptButtons = mkElt("p", undefined, [btnUpdate, btnSkip]);
     dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
+        mkElt("h2", undefined, updateTitle),
         mkElt("p", undefined, `Update available: version ${waitingVersion}`),
         divErrLine,
         divPromptButtons
@@ -417,6 +418,10 @@ async function getWorkbox() {
     if (instWorkbox) return instWorkbox
 }
 
+let updateTitle = "(app title not known)";
+export function setUpdateTitle(strTitle) {
+    updateTitle = strTitle;
+}
 export function setVersionFun(fun) {
     funVersion = fun;
     logConsole("got version fun", funVersion);

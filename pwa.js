@@ -94,7 +94,10 @@ export async function setVersionFun(funVersion) {
     logStrongConsole("funVersion done");
     waitUntilSetVerFun.tellReady();
 }
-
+export async function setUpdateTitle(strTitle) {
+    if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
+    modNotCached?.setUpdateTitle(strTitle);
+}
 export async function startSW(urlSW) {
     if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
     // await waitUntilSetVerFun.promReady();

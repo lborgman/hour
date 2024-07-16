@@ -112,10 +112,19 @@
             background-color: darkolivegreen;
         }
 
+        #expander-close {
+            visibility: hidden;
+        }
+
+        #expander-close.can-close {
+            visibility: visible;
+        }
+
         #expander-button {
             display: flex;
             flex-wrap: nowrap;
             align-items: center;
+            justify-content: space-between;
             min-height: 40px;
             padding: 0px 10px;
             cursor: pointer;
@@ -304,7 +313,10 @@
 
 
     <div id="expander-wrapper">
-        <div id="expander-button" title="Show explanation">What is this good for?</div>
+        <div id="expander-button" title="Show explanation">
+            What is this good for?
+            <button id="expander-close">Close</button>
+        </div>
         <div class="expander" id="expander">
             <div class="expander-content">
                 <div id="good4img">
@@ -444,9 +456,11 @@
         });
 
         const buttonExpander = document.getElementById("expander-button");
+        const buttonClose = document.getElementById("expander-close");
         const divExpander = document.getElementById("expander");
         buttonExpander.addEventListener("click", evt => {
             expander.classList.toggle("expanded");
+            buttonClose.classList.toggle("can-close");
         });
 
     </script>

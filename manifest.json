@@ -10,5 +10,6 @@
         }
     ],
     "start_url": "./hour.html",
+    "scope": "/",
     "display": "standalone"
 }

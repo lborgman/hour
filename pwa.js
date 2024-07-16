@@ -120,7 +120,10 @@ function addCSS() {
     eltCSS.textContent =
         `
         dialog#pwa-dialog-update {
-            background-color: blue;
+            NObackground-color: blue;
+            background: linear-gradient(200deg, #4b6cb7 0%, #182848 100%);
+            background: linear-gradient(240deg, #00819c 0%, #3a47d5 100%);
+            background: linear-gradient(240deg, #00819c 0%, #2b35a3 100%);
             color: white;
             border: 2px solid white;
             border-radius: 4px;

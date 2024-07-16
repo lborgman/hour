@@ -214,6 +214,7 @@ function saveVersion(ver) {
 export function getDisplayMode() {
     let displayMode = 'browser';
     const mqStandAlone = '(display-mode: standalone)';
+    console.log("navigator.standalone", navigator.standalone)
     if (navigator.standalone || window.matchMedia(mqStandAlone).matches) {
         displayMode = 'standalone';
     }
@@ -221,7 +222,11 @@ export function getDisplayMode() {
 }
 
 async function setupForInstall() {
-    logConsole("setupForInstall");
+    logStrongConsole("setupForInstall");
+    const displayMode = getDisplayMode();
+    logStrongConsole({ displayMode });
+    if (displayMode != "standalone") { logStrongConsole("using default install!"); return; }
+
     // https://web.dev/customize-install/#criteria
     // Initialize deferredPrompt for use later to show browser install prompt.
     let deferredPrompt;

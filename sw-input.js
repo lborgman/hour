@@ -1,20 +1,4 @@
-const SW_VERSION = "0.9.104";
-/*
-    This is a boilerplate for a simple PWA service worker.
-    When you want to create a new version of the service worker then
-    
-        1) Change the SW_VERSION above.
-        2) run "nxp workbox-cli injectManifest"
-
-    The web browser client should just do
-
-      import("pwa.js");
-
-    This in turn imports "pwa-not-cached.js".
-    Any changes should be done to this later file which is not cached.
-
-    This have been tested with GitHub Pages.
-*/
+const SW_VERSION = "0.9.106";
 
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');

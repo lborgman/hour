@@ -1,4 +1,4 @@
-const version = "0.9.0";
+const version = "1.0.0";
 export function getVersion() { return version; }
 
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
@@ -226,6 +226,10 @@ export function getDisplayMode() {
 }
 
 async function setupForInstall() {
+    // Maybe have a close look on these?
+    // https://love2dev.com/pwa/add-to-homescreen-library/
+    // https://web.dev/learn/pwa/detection
+
     logStrongConsole("setupForInstall");
     const displayMode = getDisplayMode();
     logConsole({ displayMode });

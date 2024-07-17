@@ -1,4 +1,58 @@
-const version = "0.9.0";
+const version = "1.0.0";
+
+/*
+    This is a boilerplate for a simple PWA. It consists of 3 parts:
+    
+        1) This file, pwa.js which can be cached.
+        2) pwa-not-cached.js which is not cached. 
+        3) sw-input.js - which I use myself here.
+
+    The web browser client should just do
+
+      import("pwa.js");
+
+    This in turn imports "pwa-not-cached.js".
+    Any changes to the PWA handling should be done to this later file
+    which is not cached.
+
+    The user will be prompted to update.
+    The styling is done by adding a style sheet before all other
+    style sheets. So you can easily override this.
+
+
+    *** THE SERVICE WORKER FILE ***
+
+    You can handle it whichever way you want.
+    The only important thing is that it answers a request for version:
+
+        self.addEventListener("message", async evt => {
+            let msgType;
+            if (evt.data) { msgType = evt.data.type; }
+            if (evt.data) {
+                switch (msgType) {
+                    case 'GET_VERSION':
+                        evt.ports[0].postMessage(SW_VERSION);
+                        break;
+                }
+            }
+        });
+
+    I handle it the way below.
+    When I want to create a the service worker file then I:
+    
+        1) Change the SW_VERSION at the top of sw-input.js
+        2) run "nxp workbox-cli injectManifest"
+
+    In the call to workbox-cli above the file workbox-config.js is used.
+    I have just created this with
+
+        npx workbox-cli wizard
+
+    This have been tested with Google Chrome web browser
+    using GitHub Pages as the server.
+*/
+
+
 const versions = {
     "pwa.js": version
 }

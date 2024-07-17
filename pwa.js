@@ -13,7 +13,7 @@ const logStrongStyle = logStyle + " font-size:18px;";
 logStrongConsole("Here is pwa.js, ver 3", import.meta.url);
 
 function logConsole(...msg) { console.log(`%cpwa.js`, logStyle, ...msg); }
-function logStrongConsole(...msg) { console.trace(`%cpwa.js`, logStrongStyle, ...msg); }
+function logStrongConsole(...msg) { console.log(`%cpwa.js`, logStrongStyle, ...msg); }
 
 const urlPWA = new URL(import.meta.url);
 const params = [...urlPWA.searchParams.keys()];
@@ -36,7 +36,7 @@ class WaitUntil {
 const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
 async function loadNotCached() {
     let isOnLine = navigator.onLine;
-    console.log({ isOnLine });
+    // console.log({ isOnLine });
     if (isOnLine) {
         urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
         const ncVal = new Date().toISOString().slice(0, -5);
@@ -89,7 +89,7 @@ if (navigator.onLine) {
 const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
 export async function setVersionFun(funVersion) {
     const keyVersion = `PWA-version ${import.meta.url}`;
-    logStrongConsole({ keyVersion });
+    // logConsole({ keyVersion });
     if (navigator.onLine) {
         // if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
         const funVerSet = (version) => {
@@ -102,7 +102,7 @@ export async function setVersionFun(funVersion) {
         const storedVersion = localStorage.getItem(keyVersion);
         if (funVersion) { funVersion(storedVersion + " (offline)"); }
     }
-    logStrongConsole("funVersion done");
+    // logConsole("setVersionFun done");
     waitUntilSetVerFun.tellReady();
 }
 export async function setUpdateTitle(strTitle) {
@@ -141,8 +141,14 @@ function addCSS() {
             color: white;
             border: 2px solid white;
             border-radius: 4px;
+            max-width: 80vw;
             opacity: 1;
             transition: opacity 1s;
+        }
+
+        dialog#pwa-dialog-update>h2 {
+            font-size: 1.3rem;
+            font-style: italic;
         }
 
         dialog#pwa-dialog-update>p>button {

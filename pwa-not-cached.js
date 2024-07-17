@@ -5,7 +5,7 @@ const logStyle = "background:yellowgreen; color:black; padding:2px; border-radiu
 const logStrongStyle = logStyle + " font-size:18px;";
 const styleInstallEvents = logStrongStyle + "color:red;";
 function logConsole(...msg) {
-    console.log(`%cpwa-nc.js`, logStyle, ...msg);
+    // console.log(`%cpwa-nc.js`, logStyle, ...msg);
 }
 function logStrongConsole(...msg) { console.log(`%cpwa-nc.js`, logStrongStyle, ...msg); }
 function warnConsole(...msg) { console.warn(`%cpwa-nc.js`, logStyle, ...msg); }
@@ -46,7 +46,7 @@ function addDebugRow(txt) {
     logConsole(`checkPWA DEBUG: ${txt}`);
     if (secDebug == undefined) {
         secDebug = document.getElementById(idDebugSection);
-        logConsole({ secDebug });
+        // logConsole({ secDebug });
         secDebug = secDebug || "no secdebug"
     }
     if (typeof secDebug == "string") return;
@@ -70,7 +70,7 @@ async function addDebugSWinfo() {
 }
 
 async function checkPWA() {
-    logConsole("checkPWA");
+    // logConsole("checkPWA");
     // https://web.dev/learn/pwa/detection/
     window.addEventListener('DOMContentLoaded', () => {
         let displayMode = 'browser tab';
@@ -211,15 +211,14 @@ async function setupServiceWorker() {
 // function saveSWname(serviceWorkerName) { swName = serviceWorkerName; }
 function saveVersion(ver) {
     swVersion = ver;
-    addDebugRow(`Service Worker version: ${swVersion}`);
-    logStrongConsole(`Service Worker version: ${swVersion}`);
+    logConsole(`Service Worker version: ${swVersion}`);
     if (funVersion) { funVersion(swVersion); }
 }
 
 export function getDisplayMode() {
     let displayMode = 'browser';
     const mqStandAlone = '(display-mode: standalone)';
-    console.log("navigator.standalone", navigator.standalone)
+    // console.log("navigator.standalone", navigator.standalone)
     if (navigator.standalone || window.matchMedia(mqStandAlone).matches) {
         displayMode = 'standalone';
     }
@@ -229,8 +228,8 @@ export function getDisplayMode() {
 async function setupForInstall() {
     logStrongConsole("setupForInstall");
     const displayMode = getDisplayMode();
-    logStrongConsole({ displayMode });
-    if (displayMode != "standalone") { logStrongConsole("using default install!"); return; }
+    logConsole({ displayMode });
+    if (displayMode != "standalone") { logConsole("using default install!"); return; }
 
     // https://web.dev/customize-install/#criteria
     // Initialize deferredPrompt for use later to show browser install prompt.
@@ -430,7 +429,7 @@ export function setUpdateTitle(strTitle) {
 }
 export function setVersionFun(fun) {
     funVersion = fun;
-    logConsole("got version fun", funVersion);
+    // logConsole("got version fun", funVersion);
 }
 
 async function updateNow() {

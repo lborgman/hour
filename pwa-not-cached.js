@@ -1,3 +1,6 @@
+const version = "0.9.0";
+export function getVersion() { return version; }
+
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
 const styleInstallEvents = logStrongStyle + "color:red;";

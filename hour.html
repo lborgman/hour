@@ -92,12 +92,30 @@
             margin-top: 40px;
         }
 
-        #version {
+        #versions {
             position: fixed;
             right: 10px;
             bottom: 70px;
             font-size: 16px;
+        }
+
+        #version {
             opacity: 0.5;
+        }
+
+        #versions-pwa {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            background: darkolivegreen;
+            color: white;
+            border: 1px solid olive;
+            padding: 4px;
+            display: none;
+        }
+
+        .show-versions-pwa #versions-pwa {
+            display: unset;
         }
 
         #expander-wrapper {
@@ -309,7 +327,10 @@
             </p>
         </section>
     </section>
-    <div id="version"></div>
+    <div id="versions">
+        <div id="version"> </div>
+        <div id="versions-pwa">versions pwa</div>
+    </div>
 
 
     <div id="expander-wrapper">
@@ -338,8 +359,28 @@
     <section id="NOpwa-debug-output"></section>
 
     <script type="module">
+        const eltVersion = document.getElementById("version");
+        const eltVersions = document.getElementById("versions");
+        const eltVersionsPWA = document.getElementById("versions-pwa");
+        eltVersion.addEventListener("click", evt => {
+            evt.stopPropagation();
+            if (!modPWA) return;
+            const versions = modPWA.getVersions();
+            console.log({ versions });
+            let txt = "";
+            for (const k in versions) {
+                txt += `${k}:`;
+                const v = versions[k];
+                txt += `${v} `;
+            }
+            eltVersionsPWA.textContent = txt;
+            eltVersions.classList.toggle("show-versions-pwa");
+        });
+        eltVersionsPWA.addEventListener("click", evt => {
+            evt.stopPropagation();
+            eltVersions.classList.toggle("show-versions-pwa");
+        })
         const versionFun = (ver) => {
-            const eltVersion = document.getElementById("version");
             eltVersion.textContent = ver;
         }
         const pwaJs = `./pwa.js`;

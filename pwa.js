@@ -1,3 +1,13 @@
+const version = "0.9.0";
+const versions = {
+    "pwa.js": version
+}
+
+export function getVersions() {
+    return versions;
+}
+
+
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
 logStrongConsole("Here is pwa.js, ver 3", import.meta.url);
@@ -66,6 +76,7 @@ async function loadNotCached() {
         logStrongConsole("offline, can't load pwa-not-cached.js");
     }
     waitUntilNotCachedLoaded.tellReady();
+    versions["pwa-not-cached.js"] = modNotCached.getVersion();
     addCSS();
     logStrongConsole("loadNotCached", { modNotCached });
 }

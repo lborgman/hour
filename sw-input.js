@@ -1,4 +1,4 @@
-const SW_VERSION = "0.9.106";
+const SW_VERSION = "0.9.131";
 
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');

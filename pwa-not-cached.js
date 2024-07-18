@@ -14,6 +14,8 @@ function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, .
 
 logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
+let pwaFuns;
+
 const msPleaseWaitUpdating = 4000;
 let funVersion;
 const idDebugSection = "pwa-debug-output";
@@ -127,12 +129,6 @@ async function setupServiceWorker() {
         // updated service worker is still waiting.
         // You may want to customize the UI prompt accordingly.
 
-        // This code assumes your app has a promptForUpdate() method,
-        // which returns true if the user wants to update.
-        // Implementing this is app-specific; some examples are:
-        // https://open-ui.org/components/alert.research or
-        // https://open-ui.org/components/toast.research
-
         canUpdateNow = true;
 
         const updateAccepted = await promptForUpdate();
@@ -226,6 +222,7 @@ export function getDisplayMode() {
 }
 
 async function setupForInstall() {
+    // FIX-ME: leave this here for now because it does not seem to be stable in Chromium.
     // Maybe have a close look on these?
     // https://love2dev.com/pwa/add-to-homescreen-library/
     // https://web.dev/learn/pwa/detection
@@ -308,94 +305,18 @@ async function setupForInstall() {
 
 }
 
-// let isPromptingForUpdate = false;
-
-let dlgPromptUpdate;
+// let dlgPromptUpdate;
 async function promptForUpdate() {
-    logConsole("promptForUpdate 1");
-    const secDlgTransition = 1;
-    const msDlgTransition = 1000 * secDlgTransition;
-    const btnSkip = mkElt("button", undefined, "Skip");
-    const btnUpdate = mkElt("button", undefined, "Update");
-
-    logConsole("promptForUpdate 2");
+    logConsole("prompt4update 1");
     const wb = await getWorkbox();
-    logConsole("promptForUpdate 3");
     const waitingVersion = await wb.messageSW({ type: 'GET_VERSION' });
-    logConsole("promptForUpdate 4");
-    const divErrLine = mkElt("p");
-    const divPromptButtons = mkElt("p", undefined, [btnUpdate, btnSkip]);
-    dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
-        mkElt("h2", undefined, updateTitle),
-        mkElt("p", undefined, [
-            "Update available:",
-            mkElt("div", undefined, `version ${waitingVersion}`)
-        ]),
-        divErrLine,
-        divPromptButtons
-    ]);
-    document.body.appendChild(dlgPromptUpdate);
-    dlgPromptUpdate.showModal();
-    // dlgPromptUpdate.style.display = "unset";
-    setTimeout(() => {
-        // dlgPromptUpdate.style.opacity = "1";
-    }, 200);
-    logConsole("promptForUpdate 5");
-    logConsole("promptForUpdate 6");
-
-    logConsole("promptForUpdate 7");
-
-    return new Promise((resolve, reject) => {
-        const evtUA = new CustomEvent("pwa-update-available");
-        window.dispatchEvent(evtUA);
-
-        btnSkip.addEventListener("click", evt => {
-            logConsole("promptForUpdate 8");
-            resolve(false);
-            dlgPromptUpdate.classList.add("transparent");
-            setTimeout(() => { dlgPromptUpdate.remove(); }, msDlgTransition);
-        });
-        btnUpdate.addEventListener("click", evt => {
-            logConsole("promptForUpdate 9");
-            dlgPromptUpdate.textContent = "Updating, please wait ...";
-            // dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,255,255,0.75)";
-            dlgPromptUpdate.classList.add("updating");
-            window.onbeforeunload = null;
-            resolve(true);
-            funVersion("Updating...");
-            setTimeout(() => {
-                console.log("adding class transparent");
-                dlgPromptUpdate.classList.add("transparent");
-            }, msPleaseWaitUpdating);
-            // setTimeout(() => { dlgPromptUpdate.remove(); }, msPleaseWait + msDlgTransition);
-        });
-    });
+    return pwaFuns["promptForUpdate"](waitingVersion);
 }
 
 function mkElt(type, attrib, inner) {
-    var elt = document.createElement(type);
-
-    function addInner(inr) {
-        if (inr instanceof Element) {
-            elt.appendChild(inr);
-        } else {
-            const txt = document.createTextNode(inr.toString());
-            elt.appendChild(txt);
-        }
-    }
-    if (inner) {
-        if (inner.length && typeof inner != "string") {
-            for (var i = 0; i < inner.length; i++)
-                if (inner[i])
-                    addInner(inner[i]);
-        } else
-            addInner(inner);
-    }
-    for (var x in attrib) {
-        elt.setAttribute(x, attrib[x]);
-    }
-    return elt;
+    return pwaFuns["mkElt"](type, attrib, inner);
 }
+
 function mkSnackbar(msg, color, bgColor, left, bottom, msTime) {
     const snackbar = mkElt("aside");
     snackbar.textContent = msg;
@@ -427,10 +348,7 @@ async function getWorkbox() {
     if (instWorkbox) return instWorkbox
 }
 
-let updateTitle = "(app title not known)";
-export function setUpdateTitle(strTitle) {
-    updateTitle = strTitle;
-}
+
 export function setVersionFun(fun) {
     funVersion = fun;
     // logConsole("got version fun", funVersion);
@@ -443,9 +361,11 @@ async function updateNow() {
     wb.messageSkipWaiting();
 }
 
-export function isShowingUpdatePrompt() {
-    return !!dlgPromptUpdate?.closest(":root");
-}
+// export function isShowingUpdatePrompt() { return !!dlgPromptUpdate?.closest(":root"); }
 
+export function setPWAfuns(objFuns) {
+    pwaFuns = objFuns;
+    // console.log({ pwaFuns });
+}
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

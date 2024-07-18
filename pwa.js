@@ -76,6 +76,16 @@ if (urlPWA.hash.length > 0) console.error("pwa.js should have no hash");
 
 
 let modNotCached;
+
+let theFunVersion;
+let updateTitle;
+
+const secDlgUpdateTransition = 1;
+const msDlgUpdateTransition = 1000 * secDlgUpdateTransition;
+
+const secPleaseWaitUpdating = 4000;
+const msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
+
 class WaitUntil {
     #evtName; #target; #prom;
     constructor(evtName, target) {
@@ -131,6 +141,11 @@ async function loadNotCached() {
     }
     waitUntilNotCachedLoaded.tellReady();
     versions["pwa-not-cached.js"] = modNotCached.getVersion();
+    const myFuns = {
+        "mkElt": mkElt,
+        "promptForUpdate": promptForUpdate,
+    }
+    modNotCached.setPWAfuns(myFuns);
     addCSS();
     logStrongConsole("loadNotCached", { modNotCached });
 }
@@ -142,6 +157,7 @@ if (navigator.onLine) {
 
 const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
 export async function setVersionFun(funVersion) {
+    theFunVersion = funVersion;
     const keyVersion = `PWA-version ${import.meta.url}`;
     // logConsole({ keyVersion });
     if (navigator.onLine) {
@@ -160,8 +176,7 @@ export async function setVersionFun(funVersion) {
     waitUntilSetVerFun.tellReady();
 }
 export async function setUpdateTitle(strTitle) {
-    if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
-    modNotCached?.setUpdateTitle(strTitle);
+    updateTitle = strTitle;
 }
 export async function startSW(urlSW) {
     if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
@@ -184,7 +199,6 @@ function addCSS() {
     }
     const eltCSS = document.createElement("style");
     eltCSS.id = idCSS;
-    /* transition: opacity ${secDlgTransition}s; */
     eltCSS.textContent =
         `
         dialog#pwa-dialog-update {
@@ -197,7 +211,7 @@ function addCSS() {
             border-radius: 4px;
             max-width: 80vw;
             opacity: 1;
-            transition: opacity 1s;
+            transition: opacity ${secDlgUpdateTransition}s;
         }
 
         dialog#pwa-dialog-update>h2 {
@@ -236,4 +250,84 @@ function addCSS() {
     `;
     const style1 = document.querySelector("style");
     document.head.insertBefore(eltCSS, style1);
+}
+
+
+
+
+function mkElt(type, attrib, inner) {
+    var elt = document.createElement(type);
+
+    function addInner(inr) {
+        if (inr instanceof Element) {
+            elt.appendChild(inr);
+        } else {
+            const txt = document.createTextNode(inr.toString());
+            elt.appendChild(txt);
+        }
+    }
+    if (inner) {
+        if (inner.length && typeof inner != "string") {
+            for (var i = 0; i < inner.length; i++)
+                if (inner[i])
+                    addInner(inner[i]);
+        } else
+            addInner(inner);
+    }
+    for (var x in attrib) {
+        elt.setAttribute(x, attrib[x]);
+    }
+    return elt;
+}
+
+let dlgPromptUpdate;
+async function promptForUpdate(waitingVersion) {
+    logConsole("prompt4update 1");
+
+    // const wb = await getWorkbox();
+    // logConsole("prompt4update 3");
+    // const waitingVersion = await wb.messageSW({ type: 'GET_VERSION' });
+    // logConsole("prompt4update 4");
+
+    // const divErrLine = mkElt("p");
+    const btnSkip = mkElt("button", undefined, "Skip");
+    const btnUpdate = mkElt("button", undefined, "Update");
+    const divPromptButtons = mkElt("p", undefined, [btnUpdate, btnSkip]);
+    dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
+        mkElt("h2", undefined, updateTitle),
+        mkElt("p", undefined, [
+            "Update available:",
+            mkElt("div", undefined, `version ${waitingVersion}`)
+        ]),
+        // divErrLine,
+        divPromptButtons
+    ]);
+    document.body.appendChild(dlgPromptUpdate);
+    dlgPromptUpdate.showModal();
+    logConsole("prompt4update 5");
+
+    return new Promise((resolve, reject) => {
+        const evtUA = new CustomEvent("pwa-update-available");
+        window.dispatchEvent(evtUA);
+
+        btnSkip.addEventListener("click", evt => {
+            logConsole("prompt4update 8");
+            resolve(false);
+            dlgPromptUpdate.classList.add("transparent");
+            setTimeout(() => { dlgPromptUpdate.remove(); }, msDlgUpdateTransition);
+        });
+        btnUpdate.addEventListener("click", evt => {
+            logConsole("prompt4update 9");
+            dlgPromptUpdate.textContent = "Updating, please wait ...";
+            // dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,255,255,0.75)";
+            dlgPromptUpdate.classList.add("updating");
+            window.onbeforeunload = null;
+            resolve(true);
+            theFunVersion("Updating");
+            setTimeout(() => {
+                console.log("adding class transparent");
+                dlgPromptUpdate.classList.add("transparent");
+            }, msPleaseWaitUpdating);
+        });
+    });
 }

@@ -73,6 +73,13 @@ const idDebugSection = "pwa-debug-output";
 const secDebug = document.getElementById(idDebugSection);
 function addDebugRow(txt) {
     if (secDebug == undefined) return;
+    if (secDebug.parentElement == null) return;
+    if (secDebug.textContent.trim() == "") {
+        const btnClose = mkElt("button", undefined, "Close debug output");
+        btnClose.addEventListener("click", evt => secDebug.remove());
+        const rowClose = mkElt("div", undefined, btnClose);
+        secDebug.appendChild(rowClose);
+    }
     logConsole(`checkPWA DEBUG: ${txt}`);
     const pRow = mkElt("p", undefined, txt);
     secDebug.appendChild(pRow);
@@ -259,6 +266,23 @@ function addCSS() {
         dialog#pwa-dialog-update.updating {
             box-shadow: 3px 5px 5px 12px rgba(255,255,127,0.75);
         }
+
+
+        #pwa-debug-output {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: wheat;
+            color: black;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        #pwa-debug-output>p {
+            margin-block-start: 0.5em;
+            margin-block-end: 0.5em;
+        }
+
 
     `;
     const style1 = document.querySelector("style");

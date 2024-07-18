@@ -1,7 +1,4 @@
-const SW_VERSION = "0.9.135";
-
-// https://www.npmjs.com/package/workbox-sw
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
+const SW_VERSION = "0.9.141";
 
 const logStyle = "background:blue; color:white; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
@@ -11,7 +8,13 @@ function logConsole(...msg) {
 }
 function logStrongConsole(...msg) { console.log(`%c${swName}`, logStrongStyle, ...msg); }
 
+
 logStrongConsole(`Service worker SW_VERSION=${SW_VERSION}`);
+
+
+
+// https://www.npmjs.com/package/workbox-sw
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
 workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 

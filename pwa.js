@@ -71,7 +71,9 @@ function logStrongConsole(...msg) { console.log(`%cpwa.js`, logStrongStyle, ...m
 
 const idDebugSection = "pwa-debug-output";
 const secDebug = document.getElementById(idDebugSection);
+let mayLogToScreen = true;
 function addScreenDebugRow(...txt) {
+    if (!mayLogToScreen) return;
     if (secDebug == undefined) return;
     if (secDebug.parentElement == null) return;
     if (secDebug.textContent.trim() == "") {
@@ -156,11 +158,13 @@ async function loadNotCached() {
 
             document.body.appendChild(eltErr);
             eltErr.showModal();
+            return;
         }
     } else {
         logStrongConsole("offline, can't load pwa-not-cached.js");
     }
     waitUntilNotCachedLoaded.tellReady();
+    if (modNotCached.getMayLogToScreen) { mayLogToScreen = modNotCached.getMayLogToScreen(); }
     versions["pwa-not-cached.js"] = modNotCached.getVersion();
     const myFuns = {
         "mkElt": mkElt,

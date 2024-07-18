@@ -71,7 +71,7 @@ function logStrongConsole(...msg) { console.log(`%cpwa.js`, logStrongStyle, ...m
 
 const idDebugSection = "pwa-debug-output";
 const secDebug = document.getElementById(idDebugSection);
-function addDebugRow(txt) {
+function addScreenDebugRow(...txt) {
     if (secDebug == undefined) return;
     if (secDebug.parentElement == null) return;
     if (secDebug.textContent.trim() == "") {
@@ -80,8 +80,10 @@ function addDebugRow(txt) {
         const rowClose = mkElt("div", undefined, btnClose);
         secDebug.appendChild(rowClose);
     }
-    logConsole(`checkPWA DEBUG: ${txt}`);
-    const pRow = mkElt("p", undefined, txt);
+    // logConsole(`checkPWA DEBUG: ${txt}`);
+    logConsole(`SCREEN DEBUG`, [...txt].slice(1));
+    // const pRow = mkElt("p", undefined, txt);
+    const pRow = mkElt("p", undefined, [...txt]);
     secDebug.appendChild(pRow);
 }
 
@@ -163,7 +165,7 @@ async function loadNotCached() {
     const myFuns = {
         "mkElt": mkElt,
         "promptForUpdate": promptForUpdate,
-        "addDebugRow": addDebugRow,
+        "addScreenDebugRow": addScreenDebugRow,
     }
     modNotCached.setPWAfuns(myFuns);
     addCSS();
@@ -272,10 +274,11 @@ function addCSS() {
             position: fixed;
             top: 0;
             left: 0;
+            font-size: 14px;
             background-color: wheat;
             color: black;
             padding: 8px;
-            font-size: 14px;
+            box-shadow: aquamarine 8px 8px 8px;
         }
 
         #pwa-debug-output>p {

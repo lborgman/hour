@@ -1,13 +1,19 @@
 const version = "1.0.0";
 export function getVersion() { return version; }
 
+let pwaFuns;
+
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
 const styleInstallEvents = logStrongStyle + "color:red;";
 function logConsole(...msg) {
     // console.log(`%cpwa-nc.js`, logStyle, ...msg);
 }
-function logStrongConsole(...msg) { console.log(`%cpwa-nc.js`, logStrongStyle, ...msg); }
+function logStrongConsole(...msg) {
+    console.log(`%cpwa-nc.js`, logStrongStyle, ...msg);
+    // debugger;
+    addScreenDebugRow(...msg);
+}
 function warnConsole(...msg) { console.warn(`%cpwa-nc.js`, logStyle, ...msg); }
 function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, ...msg); }
 
@@ -15,7 +21,6 @@ function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, .
 logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
 
-let pwaFuns;
 
 const msPleaseWaitUpdating = 4000;
 let funVersion;
@@ -47,18 +52,20 @@ export function startSW(urlSW) {
 
 function addDebugLocation(loc) {
     const inner = mkElt("a", { href: loc }, loc);
-    addDebugRow(inner);
+    addScreenDebugRow(inner);
+    // logStrongConsole(inner);
 }
 
 async function addDebugSWinfo() {
     const regs = await navigator.serviceWorker.getRegistrations();
-    addDebugRow(`Registered service workers: ${regs.length}`);
+    addScreenDebugRow(`Registered service workers: ${regs.length}`);
     const loc = location.href;
     addDebugLocation(loc);
     const u = new URL(loc);
     u.pathname = "manifest.json";
     addDebugLocation(u.href);
-    addDebugRow(`navigator.userAgentData.platform: ${navigator.userAgentData?.platform}`);
+    // addScreenDebugRow(`navigator.userAgentData.platform: ${navigator.userAgentData?.platform}`);
+    logStrongConsole(`navigator.userAgentData.platform: ${navigator.userAgentData?.platform}`);
 }
 
 async function checkPWA() {
@@ -70,16 +77,16 @@ async function checkPWA() {
         modes.forEach(m => {
             if (window.matchMedia(`(display-mode: ${m})`).matches) {
                 displayMode = m;
-                addDebugRow(`matched media: ${displayMode}`)
+                addScreenDebugRow(`matched media: ${displayMode}`)
             }
         });
-        addDebugRow(`DISPLAY_MODE_LAUNCH: ${displayMode}`);
+        addScreenDebugRow(`DISPLAY_MODE_LAUNCH: ${displayMode}`);
     });
     // https://web.dev/get-installed-related-apps/
     const relatedApps = navigator.getInstalledRelatedApps ? await navigator.getInstalledRelatedApps() : [];
-    addDebugRow(`Related apps (${relatedApps.length}):`);
+    addScreenDebugRow(`Related apps (${relatedApps.length}):`);
     relatedApps.forEach((app) => {
-        addDebugRow(`${app.id}, ${app.platform}, ${app.url}`);
+        addScreenDebugRow(`${app.id}, ${app.platform}, ${app.url}`);
     });
 }
 
@@ -183,7 +190,7 @@ async function setupServiceWorker() {
             navigator.serviceWorker.controller.postMessage({ type: "GET_VERSION" }, [messageChannelVersion.port2]);
 
         } else {
-            addDebugRow(`Service Worker version: controller is null`);
+            addScreenDebugRow(`Service Worker version: controller is null`);
         }
 
         return swRegistration;
@@ -353,8 +360,12 @@ async function promptForUpdate() {
     return pwaFuns["promptForUpdate"](waitingVersion);
 }
 
-function addDebugRow(txt) {
-    return pwaFuns["addDebugRow"](txt);
+function addScreenDebugRow(...txt) {
+    if (!pwaFuns) return;
+    const mark = document.createElement("span");
+    mark.textContent = "PWA-NC";
+    mark.style = logStyle + "margin-right:5px;";
+    return pwaFuns["addScreenDebugRow"](mark, ...txt);
 }
 
 

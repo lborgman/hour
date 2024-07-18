@@ -14,12 +14,13 @@ function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, .
 
 logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
+
 let pwaFuns;
 
 const msPleaseWaitUpdating = 4000;
 let funVersion;
-const idDebugSection = "pwa-debug-output";
-let secDebug;
+// const idDebugSection = "pwa-debug-output";
+// let secDebug;
 let swVersion;
 let instWorkbox;
 let canUpdateNow = false;
@@ -44,17 +45,6 @@ export function startSW(urlSW) {
     setupServiceWorker();
 }
 
-function addDebugRow(txt) {
-    logConsole(`checkPWA DEBUG: ${txt}`);
-    if (secDebug == undefined) {
-        secDebug = document.getElementById(idDebugSection);
-        // logConsole({ secDebug });
-        secDebug = secDebug || "no secdebug"
-    }
-    if (typeof secDebug == "string") return;
-    const pRow = mkElt("p", undefined, txt);
-    secDebug.appendChild(pRow);
-}
 function addDebugLocation(loc) {
     const inner = mkElt("a", { href: loc }, loc);
     addDebugRow(inner);
@@ -204,7 +194,6 @@ async function setupServiceWorker() {
     }
 }
 
-// function saveSWname(serviceWorkerName) { swName = serviceWorkerName; }
 function saveVersion(ver) {
     swVersion = ver;
     logConsole(`Service Worker version: ${swVersion}`);
@@ -305,17 +294,6 @@ async function setupForInstall() {
 
 }
 
-// let dlgPromptUpdate;
-async function promptForUpdate() {
-    logConsole("prompt4update 1");
-    const wb = await getWorkbox();
-    const waitingVersion = await wb.messageSW({ type: 'GET_VERSION' });
-    return pwaFuns["promptForUpdate"](waitingVersion);
-}
-
-function mkElt(type, attrib, inner) {
-    return pwaFuns["mkElt"](type, attrib, inner);
-}
 
 function mkSnackbar(msg, color, bgColor, left, bottom, msTime) {
     const snackbar = mkElt("aside");
@@ -361,11 +339,24 @@ async function updateNow() {
     wb.messageSkipWaiting();
 }
 
-// export function isShowingUpdatePrompt() { return !!dlgPromptUpdate?.closest(":root"); }
-
 export function setPWAfuns(objFuns) {
     pwaFuns = objFuns;
-    // console.log({ pwaFuns });
 }
+function mkElt(type, attrib, inner) {
+    return pwaFuns["mkElt"](type, attrib, inner);
+}
+
+async function promptForUpdate() {
+    logConsole("prompt4update 1");
+    const wb = await getWorkbox();
+    const waitingVersion = await wb.messageSW({ type: 'GET_VERSION' });
+    return pwaFuns["promptForUpdate"](waitingVersion);
+}
+
+function addDebugRow(txt) {
+    return pwaFuns["addDebugRow"](txt);
+}
+
+
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

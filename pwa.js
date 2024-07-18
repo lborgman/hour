@@ -69,6 +69,18 @@ logStrongConsole("Here is pwa.js, ver 3", import.meta.url);
 function logConsole(...msg) { console.log(`%cpwa.js`, logStyle, ...msg); }
 function logStrongConsole(...msg) { console.log(`%cpwa.js`, logStrongStyle, ...msg); }
 
+const idDebugSection = "pwa-debug-output";
+const secDebug = document.getElementById(idDebugSection);
+function addDebugRow(txt) {
+    if (secDebug == undefined) return;
+    logConsole(`checkPWA DEBUG: ${txt}`);
+    const pRow = mkElt("p", undefined, txt);
+    secDebug.appendChild(pRow);
+}
+
+
+
+
 const urlPWA = new URL(import.meta.url);
 const params = [...urlPWA.searchParams.keys()];
 if (params.length > 0) console.error("pwa.js should have no parameters");
@@ -144,6 +156,7 @@ async function loadNotCached() {
     const myFuns = {
         "mkElt": mkElt,
         "promptForUpdate": promptForUpdate,
+        "addDebugRow": addDebugRow,
     }
     modNotCached.setPWAfuns(myFuns);
     addCSS();

@@ -4,5 +4,5 @@ module.exports = {
 		'**/*.{html,svg,js,json}'
 	],
 	swSrc: 'sw-input.js',
-	swDest: 'sw-workbox.js',
+	swDest: 'sw-hour-workbox.js',
 };

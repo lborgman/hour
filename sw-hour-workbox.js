@@ -17,7 +17,7 @@ logStrongConsole(`Service worker SW_VERSION=${SW_VERSION}`);
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
-workbox.precaching.precacheAndRoute([{"revision":"c1e2b622e52ed7ebe6bd939008005027","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"bd8902a5e61cc2f23f87b2e8c713e08e","url":"manifest.json"},{"revision":"c6ff31ef482033c9697d7515051fb3be","url":"pwa-not-cached.js"},{"revision":"c544f3d24940fddc4455fa0f16d1c6f6","url":"pwa.js"},{"revision":"9733a10260c76a60abfe450622e5201a","url":"workbox-config.js"}]);
+workbox.precaching.precacheAndRoute([{"revision":"403dcb9a37b3beba8674dc264e0b85f4","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"bd8902a5e61cc2f23f87b2e8c713e08e","url":"manifest.json"},{"revision":"c6ff31ef482033c9697d7515051fb3be","url":"pwa-not-cached.js"},{"revision":"c544f3d24940fddc4455fa0f16d1c6f6","url":"pwa.js"},{"revision":"ff108474f142c51641af4f47ed79c2a4","url":"workbox-config.js"}]);
 
 
 

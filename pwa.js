@@ -23,6 +23,10 @@ const version = "1.0.0";
     *** THE SERVICE WORKER FILE ***
 
     You can handle it whichever way you want.
+    (I prefer to use Google Workbox, loaded from the internet.
+    This works together with pwa-not-cached.js which also
+    loads Workbord from the internet.)
+
     The only important thing is that it answers a request for version:
 
         self.addEventListener("message", async evt => {
@@ -48,8 +52,15 @@ const version = "1.0.0";
 
         npx workbox-cli wizard
 
-    This have been tested with Google Chrome web browser
+    My code have been tested with Google Chrome web browser
     using GitHub Pages as the server.
+
+
+    I plan to use these files in different small projects.
+    If I need to change anything I will first try it out in
+    the (toy) project "Get hour number":
+
+        https://github.com/lborgman/hour
 */
 
 

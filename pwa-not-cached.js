@@ -1,3 +1,5 @@
+// See pwa.js for documentation
+
 const version = "1.0.0";
 export function getVersion() { return version; }
 

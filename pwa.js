@@ -220,13 +220,14 @@ export async function startSW(urlSW) {
     // await waitUntilSetVerFun.promReady();
     const uSW = new URL(urlSW, location);
     let maybeGithubPages = false;
-    if (["localhost", "127.0.0.1"].includes(uSW.hostname)) {
-        // This is preparing for GitHub Pages
-        const path = uSW.pathname;
-        console.log({ path });
-        const lastIdx = path.lastIndexOf("/");
-        const swOnTop = lastIdx == 0;
-        if (swOnTop) {
+    // This is preparing for GitHub Pages
+    const path = uSW.pathname;
+    console.log({ path });
+    const lastIdx = path.lastIndexOf("/");
+    const swOnTop = lastIdx == 0;
+
+    if (swOnTop) {
+        if (["localhost", "127.0.0.1"].includes(uSW.hostname)) {
             const g = await fetch("./.git");
             debugger;
             if (g.ok) {
@@ -240,6 +241,8 @@ export async function startSW(urlSW) {
                     }
                 }
             }
+        } else if (uSW.hostname.slice(-10) == ".github.io") {
+            maybeGithubPages = true;
         }
     }
     modNotCached?.startSW(urlSW, maybeGithubPages);

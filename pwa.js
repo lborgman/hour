@@ -217,32 +217,54 @@ export async function setUpdateTitle(strTitle) {
 }
 export async function startSW(urlSW) {
     if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
-    // await waitUntilSetVerFun.promReady();
     const uSW = new URL(urlSW, location);
+
     let maybeGithubPages = false;
-    // This is preparing for GitHub Pages
+    let sureIsGithubPages = false;
+
     const path = uSW.pathname;
     console.log({ path });
     const lastIdx = path.lastIndexOf("/");
     const swOnTop = lastIdx == 0;
 
-    if (swOnTop) {
+    let onTopProblem;
+    if (!swOnTop) {
+        onTopProblem = false;
+    } else {
         if (["localhost", "127.0.0.1"].includes(uSW.hostname)) {
-            const g = await fetch("./.git");
-            debugger;
-            if (g.ok) {
-                const c = await fetch("./.git/config");
-                if (c.ok) {
-                    const t = await c.text();
-                    if (t.search("https://github.com/") > 0) {
-                        // Could be an indication that GitHub Pages are used, but we can't be sure.
-                        maybeGithubPages = true;
-                        debugger;
-                    }
+            const uGitConfig = new URL("./.git/config", uSW);
+            const c = await fetch(uGitConfig);
+            if (c.ok) {
+                const t = await c.text();
+                if (t.search("https://github.com/") > 0) {
+                    // Could be an indication that GitHub Pages are used, but we can't be sure.
+                    maybeGithubPages = true;
                 }
             }
+            const dlg = mkElt("dialog", {id:"pwa-dialog-sw-on-top"}, [
+                mkElt("h2", undefined, "Service worker at top of domain"),
+                mkElt("p", undefined, [
+                    "The ",
+                    mkElt("a", { href: uSW.href, tarrget: "_blank" }, "service worker"),
+                    ` for this page is placed at the top of the domain `,
+                    mkElt("a", {href:"${uSW.host}"}, `${uSW.protocol}//${uSW.host}/`),
+                    `. That may lead to conflicts with other service workers in this domain.`
+                ]),
+            ]);
+            if (maybeGithubPages) {
+                dlg.appendChild(
+                    mkElt("p", undefined, [
+                        `A situation where this can be a problem is when you are hosting
+                        several PWA:s on GitHub pages.
+                        (I can't tell if you are doing that,
+                        but I can see you are using GitHub for this project.)`
+                    ])
+                );
+            }
+            document.body.appendChild(dlg);
+            dlg.showModal();
         } else if (uSW.hostname.slice(-10) == ".github.io") {
-            maybeGithubPages = true;
+            sureIsGithubPages = true;
         }
     }
     modNotCached?.startSW(urlSW, maybeGithubPages);
@@ -265,6 +287,21 @@ function addCSS() {
     eltCSS.id = idCSS;
     eltCSS.textContent =
         `
+        dialog#pwa-dialog-sw-on-top {
+            max-width: 300px;
+            background: yellow;
+            color: black;
+            border: 4px solid red;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        dialog#pwa-dialog-sw-on-top::backdrop {
+            background-color: black;
+            opacity: 0.5;
+        }
+
+
         dialog#pwa-dialog-update {
             background: linear-gradient(200deg, #4b6cb7 0%, #182848 100%);
             background: linear-gradient(240deg, #00819c 0%, #3a47d5 100%);

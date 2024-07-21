@@ -219,6 +219,7 @@ export async function startSW(urlSW) {
     if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
     // await waitUntilSetVerFun.promReady();
     const uSW = new URL(urlSW, location);
+    let maybeGithubPages = false;
     if (["localhost", "127.0.0.1"].includes(uSW.hostname)) {
         // This is preparing for GitHub Pages
         const path = uSW.pathname;
@@ -226,10 +227,22 @@ export async function startSW(urlSW) {
         const lastIdx = path.lastIndexOf("/");
         const swOnTop = lastIdx == 0;
         if (swOnTop) {
+            const g = await fetch("./.git");
             debugger;
+            if (g.ok) {
+                const c = await fetch("./.git/config");
+                if (c.ok) {
+                    const t = await c.text();
+                    if (t.search("https://github.com/") > 0) {
+                        // Could be an indication that GitHub Pages are used, but we can't be sure.
+                        maybeGithubPages = true;
+                        debugger;
+                    }
+                }
+            }
         }
     }
-    modNotCached?.startSW(urlSW);
+    modNotCached?.startSW(urlSW, maybeGithubPages);
 }
 
 

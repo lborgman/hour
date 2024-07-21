@@ -349,42 +349,8 @@
 
     <section id="pwa-debug-output"></section>
 
-    <script type="module">
-        const eltVersion = document.getElementById("version");
-        const eltVersions = document.getElementById("versions");
-        const eltVersionsPWA = document.getElementById("versions-pwa");
-        eltVersion.addEventListener("click", evt => {
-            evt.stopPropagation();
-            if (!modPWA) return;
-            const versions = modPWA.getVersions();
-            console.log({ versions });
-            let txt = "";
-            for (const k in versions) {
-                txt += `${k}:`;
-                const v = versions[k];
-                txt += `${v} `;
-            }
-            eltVersionsPWA.textContent = txt;
-            eltVersions.classList.toggle("show-versions-pwa");
-        });
-        eltVersionsPWA.addEventListener("click", evt => {
-            evt.stopPropagation();
-            eltVersions.classList.toggle("show-versions-pwa");
-        })
-        const versionFun = (ver) => {
-            eltVersion.textContent = ver;
-        }
-        const pwaJs = `./pwa.js`;
-        const modPWA = await import(pwaJs);
-        modPWA.setUpdateTitle(document.title);
-        // modPWA.setVersionFun(versionFun);
-        modPWA.startSW("./sw-hour-workbox.js");
-        modPWA.setVersionFun(versionFun);
-    </script>
 
     <script type="module">
-
-
         const msTimeOffset = new Date().getTimezoneOffset() * 60 * 1000;
         const strISOdateNow = newLocalDate(Date.now()).toISOString();
         // console.log({ strISOdateNow });
@@ -498,6 +464,40 @@
         });
 
     </script>
+
+<script type="module">
+    const eltVersion = document.getElementById("version");
+    const eltVersions = document.getElementById("versions");
+    const eltVersionsPWA = document.getElementById("versions-pwa");
+    eltVersion.addEventListener("click", evt => {
+        evt.stopPropagation();
+        if (!modPWA) return;
+        const versions = modPWA.getVersions();
+        console.log({ versions });
+        let txt = "";
+        for (const k in versions) {
+            txt += `${k}:`;
+            const v = versions[k];
+            txt += `${v} `;
+        }
+        eltVersionsPWA.textContent = txt;
+        eltVersions.classList.toggle("show-versions-pwa");
+    });
+    eltVersionsPWA.addEventListener("click", evt => {
+        evt.stopPropagation();
+        eltVersions.classList.toggle("show-versions-pwa");
+    })
+    const versionSWfun = (ver) => {
+        eltVersion.textContent = ver;
+    }
+    const pwaJs = `./pwa.js`;
+    const modPWA = await import(pwaJs);
+    modPWA.setUpdateTitle(document.title);
+    // modPWA.setVersionSWfun(versionFun);
+    modPWA.startSW("./sw-hour-workbox.js");
+    modPWA.setVersionSWfun(versionSWfun);
+</script>
+
 </body>
 
 </html>

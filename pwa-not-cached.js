@@ -336,7 +336,7 @@ async function getWorkbox() {
 }
 
 
-export function setVersionFun(fun) {
+export function setVersionSWfun(fun) {
     funVersion = fun;
     // logConsole("got version fun", funVersion);
 }

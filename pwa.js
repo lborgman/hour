@@ -1,4 +1,4 @@
-const version = "1.0.0";
+const version = "1.0.1";
 
 /*
     This is a boilerplate for a simple PWA. It consists of 3 parts:
@@ -193,7 +193,7 @@ if (navigator.onLine) {
 }
 
 const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
-export async function setVersionFun(funVersion) {
+export async function setVersionSWfun(funVersion) {
     theFunVersion = funVersion;
     const keyVersion = `PWA-version ${import.meta.url}`;
     // logConsole({ keyVersion });
@@ -204,12 +204,12 @@ export async function setVersionFun(funVersion) {
             if (funVersion) { funVersion(version); }
         }
         await waitUntilNotCachedLoaded.promReady();
-        modNotCached?.setVersionFun(funVerSet);
+        modNotCached?.setVersionSWfun(funVerSet);
     } else {
         const storedVersion = localStorage.getItem(keyVersion);
         if (funVersion) { funVersion(storedVersion + " (offline)"); }
     }
-    // logConsole("setVersionFun done");
+    // logConsole("setVersionSWfun done");
     waitUntilSetVerFun.tellReady();
 }
 export async function setUpdateTitle(strTitle) {
@@ -218,6 +218,17 @@ export async function setUpdateTitle(strTitle) {
 export async function startSW(urlSW) {
     if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
     // await waitUntilSetVerFun.promReady();
+    const uSW = new URL(urlSW, location);
+    if (["localhost", "127.0.0.1"].includes(uSW.hostname)) {
+        // This is preparing for GitHub Pages
+        const path = uSW.pathname;
+        console.log({ path });
+        const lastIdx = path.lastIndexOf("/");
+        const swOnTop = lastIdx == 0;
+        if (swOnTop) {
+            debugger;
+        }
+    }
     modNotCached?.startSW(urlSW);
 }
 

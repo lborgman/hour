@@ -1,6 +1,6 @@
 // See pwa.js for documentation
 
-const version = "1.0.0";
+const version = "1.0.1";
 export function getVersion() { return version; }
 
 let pwaFuns;
@@ -24,7 +24,12 @@ logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
 
 
-const msPleaseWaitUpdating = 4000;
+// Here is where the duration of "Updating, please..." can be customized:
+const secPleaseWaitUpdating = 3;
+const msPleaseWaitUpdating = secPleaseWaitUpdating * 1000;
+export function getSecPleaseWaitUpdating() { return secPleaseWaitUpdating; }
+
+
 let funVersion;
 // const idDebugSection = "pwa-debug-output";
 // let secDebug;

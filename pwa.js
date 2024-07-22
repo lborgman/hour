@@ -1,7 +1,12 @@
-const version = "1.0.5";
+const version = "1.1.6";
 
 /*
-    This is a boilerplate for handling a simple PWA. It consists of 3 parts:
+    This is a boilerplate for handling a simple PWA.
+    The current version of this file should always be available at
+
+        https://github.com/lborgman/hour/blob/main/pwa.js
+
+    This pwa handler consists of 3 parts:
     
         1) This file, pwa.js which can be cached.
         2) pwa-not-cached.js which is not cached. 
@@ -12,12 +17,13 @@ const version = "1.0.5";
       import("pwa.js");
 
     This in turn imports "pwa-not-cached.js".
-    Any changes to the PWA handling should be done to this later file
+    Any changes to your PWA handling should be done to this later file
     which is not cached.
 
-    The user will be prompted to update.
-    The styling is done by adding a style sheet before all other
-    style sheets. So you can easily override this.
+
+    The user will be automatically prompted to update.
+    The styling of that dialog is done by adding a style sheet
+    before all other style sheets. So you can easily override this.
 
 
     *** THE SERVICE WORKER FILE ***
@@ -118,8 +124,8 @@ let updateTitle;
 const secDlgUpdateTransition = 1;
 const msDlgUpdateTransition = 1000 * secDlgUpdateTransition;
 
-const secPleaseWaitUpdating = 2000;
-const msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
+let secPleaseWaitUpdating = 2000;
+let msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
 
 class WaitUntil {
     #evtName; #target; #prom;
@@ -176,7 +182,13 @@ async function loadNotCached() {
         logStrongConsole("offline, can't load pwa-not-cached.js");
     }
     waitUntilNotCachedLoaded.tellReady();
+
     if (modNotCached.getMayLogToScreen) { mayLogToScreen = modNotCached.getMayLogToScreen(); }
+    if (modNotCached.getSecPleaseWaitUpdating) {
+        secPleaseWaitUpdating = modNotCached.getSecPleaseWaitUpdating();
+        msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
+    }
+
     versions["pwa-not-cached.js"] = modNotCached.getVersion();
     const myFuns = {
         "mkElt": mkElt,

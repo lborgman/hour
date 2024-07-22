@@ -1,7 +1,7 @@
-const version = "1.0.2";
+const version = "1.0.4";
 
 /*
-    This is a boilerplate for a simple PWA. It consists of 3 parts:
+    This is a boilerplate for handling a simple PWA. It consists of 3 parts:
     
         1) This file, pwa.js which can be cached.
         2) pwa-not-cached.js which is not cached. 
@@ -118,7 +118,7 @@ let updateTitle;
 const secDlgUpdateTransition = 1;
 const msDlgUpdateTransition = 1000 * secDlgUpdateTransition;
 
-const secPleaseWaitUpdating = 4000;
+const secPleaseWaitUpdating = 2000;
 const msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
 
 class WaitUntil {
@@ -220,9 +220,14 @@ export async function setVersionSWfun(funVersion) {
                     theEltVersion.title = "Click to show more about version";
                     theEltVersion.addEventListener("click", evt => {
                         evt.stopPropagation();
+                        const aPwsJs = mkElt("a", { href: import.meta.url, target: "_blank" }, "pwa.js");
                         const dlg = mkElt("dialog", { id: "pwa-dialog-versions" }, [
                             mkElt("h2", undefined, "PWA version info"),
-                            mkElt("p", undefined, "This info is just for debugging.")
+                            mkElt("p", undefined, [
+                                "This info is just for debugging.",
+                                " More info can be found in the beginning of the file ",
+                                aPwsJs,
+                            ])
                         ]);
                         dlg.appendChild(mkElt("div", undefined, `App version: ${getSavedAppVersion()}`));
 

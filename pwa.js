@@ -112,6 +112,7 @@ if (urlPWA.hash.length > 0) console.error("pwa.js should have no hash");
 let modNotCached;
 
 let theFunVersion;
+let theEltVersion;
 let updateTitle;
 
 const secDlgUpdateTransition = 1;
@@ -201,7 +202,30 @@ export async function setVersionSWfun(funVersion) {
         // if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
         const funVerSet = (version) => {
             localStorage.setItem(keyVersion, version);
-            if (funVersion) { funVersion(version); }
+            if (theFunVersion) {
+                const oldEltVersion = theEltVersion;
+                theEltVersion = theFunVersion(version);
+                if (!oldEltVersion) {
+                    theEltVersion.style.cursor = "pointer";
+                    theEltVersion.title = "Click to show more about version";
+                    theEltVersion.addEventListener("click", evt => {
+                        evt.stopPropagation();
+                        const dlg = mkElt("dialog", {id:"pwa-dialog-versions"}, [
+                            mkElt("h2", undefined, "PWA version info")
+                        ]);
+                        const btnClose =mkElt("button", undefined, "Close") ;
+                        const divClose = mkElt("div", undefined, btnClose);
+                        dlg.appendChild(divClose);
+                        document.body.appendChild(dlg);
+                        btnClose.addEventListener("click", evt => {
+                            dlg.close();
+                            dlg.remove();
+                        });
+                        dlg.showModal();
+                        // alert(`Clicked "${theEltVersion.id}"`);
+                    });
+                }
+            }
         }
         await waitUntilNotCachedLoaded.promReady();
         modNotCached?.setVersionSWfun(funVerSet);
@@ -290,12 +314,12 @@ function addCSS() {
     eltCSS.id = idCSS;
     eltCSS.textContent =
         `
-        dialog#pwa-dialog-sw-on-top {
+        dialog#pwa-dialog-versions {
             max-width: 300px;
-            background: yellow;
+            background: wheat;
+            background: linear-gradient(240deg, #00819c 0%, #2b35a3 100%);
             color: black;
-            border: 4px solid red;
-            border-radius: 8px;
+            border-radius: 4px;
             font-size: 16px;
         }
 

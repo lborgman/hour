@@ -1,4 +1,4 @@
-const version = "1.0.4";
+const version = "1.0.5";
 
 /*
     This is a boilerplate for handling a simple PWA. It consists of 3 parts:
@@ -363,7 +363,7 @@ function addCSS() {
         dialog#pwa-dialog-versions {
             max-width: 300px;
             background: wheat;
-            background: linear-gradient(240deg, #00819c 0%, #2b35a3 100%);
+            background: linear-gradient(240deg, #00819c 0%, #545b98 100%);
             color: black;
             border-radius: 4px;
             font-size: 16px;
@@ -372,6 +372,10 @@ function addCSS() {
         dialog#pwa-dialog-versions::backdrop {
             background-color: black;
             opacity: 0.5;
+        }
+
+        dialog#pwa-dialog-versions a {
+            color: darkblue;
         }
 
 

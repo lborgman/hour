@@ -1,4 +1,4 @@
-const version = "1.0.1";
+const version = "1.0.2";
 
 /*
     This is a boilerplate for a simple PWA. It consists of 3 parts:
@@ -193,15 +193,25 @@ if (navigator.onLine) {
     window.addEventListener("online", evt => { loadNotCached(); }, { once: true });
 }
 
+function saveAppVersion(version) {
+    const keyVersion = `PWA-version ${import.meta.url}`;
+    localStorage.setItem(keyVersion, version);
+}
+function getSavedAppVersion() {
+    const keyVersion = `PWA-version ${import.meta.url}`;
+    return localStorage.getItem(keyVersion);
+}
+
 const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
 export async function setVersionSWfun(funVersion) {
     theFunVersion = funVersion;
-    const keyVersion = `PWA-version ${import.meta.url}`;
+    // const keyVersion = `PWA-version ${import.meta.url}`;
     // logConsole({ keyVersion });
     if (navigator.onLine) {
         // if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
         const funVerSet = (version) => {
-            localStorage.setItem(keyVersion, version);
+            // localStorage.setItem(keyVersion, version);
+            saveAppVersion(version);
             if (theFunVersion) {
                 const oldEltVersion = theEltVersion;
                 theEltVersion = theFunVersion(version);
@@ -210,11 +220,40 @@ export async function setVersionSWfun(funVersion) {
                     theEltVersion.title = "Click to show more about version";
                     theEltVersion.addEventListener("click", evt => {
                         evt.stopPropagation();
-                        const dlg = mkElt("dialog", {id:"pwa-dialog-versions"}, [
-                            mkElt("h2", undefined, "PWA version info")
+                        const dlg = mkElt("dialog", { id: "pwa-dialog-versions" }, [
+                            mkElt("h2", undefined, "PWA version info"),
+                            mkElt("p", undefined, "This info is just for debugging.")
                         ]);
-                        const btnClose =mkElt("button", undefined, "Close") ;
-                        const divClose = mkElt("div", undefined, btnClose);
+                        dlg.appendChild(mkElt("div", undefined, `App version: ${getSavedAppVersion()}`));
+
+                        dlg.appendChild(mkElt("div", undefined, "Service Worker:"));
+                        const sw = navigator.serviceWorker.controller;
+                        const appendIndentedRow = (txt) => {
+                            const row = mkElt("div", undefined, txt);
+                            row.style.marginLeft = "10px";
+                            dlg.appendChild(row);
+                        }
+                        if (sw == null) {
+                            appendIndentedRow("null");
+                        } else {
+                            const u = sw.scriptURL;
+                            const aSW = mkElt("a", { href: u, target: "_blank" }, u);
+                            appendIndentedRow(mkElt("div", undefined, [
+                                "scriptURL: ",
+                                aSW
+                            ]));
+                            appendIndentedRow(mkElt("div", undefined, [
+                                "state: ",
+                                sw.state
+                            ]));
+                        }
+
+                        for (const k in versions) {
+                            const v = versions[k];
+                            dlg.appendChild(mkElt("div", undefined, `${k}: ${v}`));
+                        }
+                        const btnClose = mkElt("button", undefined, "Close");
+                        const divClose = mkElt("p", undefined, btnClose);
                         dlg.appendChild(divClose);
                         document.body.appendChild(dlg);
                         btnClose.addEventListener("click", evt => {
@@ -222,6 +261,7 @@ export async function setVersionSWfun(funVersion) {
                             dlg.remove();
                         });
                         dlg.showModal();
+                        setTimeout(() => btnClose.focus(), 100);
                         // alert(`Clicked "${theEltVersion.id}"`);
                     });
                 }
@@ -230,7 +270,8 @@ export async function setVersionSWfun(funVersion) {
         await waitUntilNotCachedLoaded.promReady();
         modNotCached?.setVersionSWfun(funVerSet);
     } else {
-        const storedVersion = localStorage.getItem(keyVersion);
+        // const storedVersion = localStorage.getItem(keyVersion);
+        const storedVersion = getSavedAppVersion();
         if (funVersion) { funVersion(storedVersion + " (offline)"); }
     }
     // logConsole("setVersionSWfun done");
@@ -323,7 +364,7 @@ function addCSS() {
             font-size: 16px;
         }
 
-        dialog#pwa-dialog-sw-on-top::backdrop {
+        dialog#pwa-dialog-versions::backdrop {
             background-color: black;
             opacity: 0.5;
         }

@@ -375,7 +375,7 @@ function addScreenDebugRow(...txt) {
     return pwaFuns["addScreenDebugRow"](mark, ...txt);
 }
 
-export function getMayLogToScreen() { return false; }
+export function getMayLogToScreen() { return true; }
 
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

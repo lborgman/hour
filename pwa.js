@@ -183,7 +183,13 @@ async function loadNotCached() {
     }
     waitUntilNotCachedLoaded.tellReady();
 
-    if (modNotCached.getMayLogToScreen) { mayLogToScreen = modNotCached.getMayLogToScreen(); }
+    if (secDebug) {
+        if (modNotCached.getMayLogToScreen) {
+            mayLogToScreen = modNotCached.getMayLogToScreen();
+            if (mayLogToScreen) { secDebug.style.display = "unset"; }
+        }
+    }
+
     if (modNotCached.getSecPleaseWaitUpdating) {
         secPleaseWaitUpdating = modNotCached.getSecPleaseWaitUpdating();
         msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
@@ -228,7 +234,7 @@ export async function setVersionSWfun(funVersion) {
                 const oldEltVersion = theEltVersion;
                 theEltVersion = theFunVersion(version);
                 if (!oldEltVersion) {
-                    theEltVersion.style.cursor = "pointer";
+                    // theEltVersion.style.cursor = "pointer";
                     theEltVersion.title = "Click to show more about version";
                     theEltVersion.addEventListener("click", evt => {
                         evt.stopPropagation();

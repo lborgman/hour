@@ -95,13 +95,15 @@
         #version {
             position: fixed;
             right: 10px;
-            bottom: 70px;
+            top: 20px;
             font-size: 16px;
+            cursor: pointer;
+            opacity: 0.4;
+        }
+        #version:hover {
+            opacity: 1;
         }
 
-        #version {
-            opacity: 0.5;
-        }
 
         #NOversions-pwa {
             position: absolute;
@@ -280,7 +282,7 @@
         }
 
 
-        #NOpwa-debug-output {
+        #pwa-debug-output {
             display: none;
         }
     </style>

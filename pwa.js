@@ -219,6 +219,7 @@ export async function startSW(urlSW) {
     if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
     const uSW = new URL(urlSW, location);
 
+    /*
     let maybeGithubPages = false;
     let sureIsGithubPages = false;
 
@@ -267,7 +268,9 @@ export async function startSW(urlSW) {
             sureIsGithubPages = true;
         }
     }
-    modNotCached?.startSW(urlSW, maybeGithubPages);
+    */
+
+    modNotCached?.startSW(urlSW);
 }
 
 

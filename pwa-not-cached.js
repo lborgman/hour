@@ -85,14 +85,17 @@ async function addDebugSWinfo() {
     const regs = await navigator.serviceWorker.getRegistrations();
     addScreenDebugRow(`Registered service workers: ${regs.length}`);
     regs.forEach(reg => {
+        const isController = reg.active === navigator.serviceWorker.controller;
+        console.log({ isController });
+        const eltC = isController ? mkElt("b", undefined, " controller") : "";
         const active = reg.active;
         const state = active.state;
         const url = active.scriptURL;
-        console.log({active, state, url});
-        const eltA = mkElt("a", {href:url, target:"_blank"}, url);
+        console.log({ active, state, url });
+        const eltA = mkElt("a", { href: url, target: "_blank" }, url);
         eltA.style.marginLeft = "10px";
         const eltRow = mkElt("span", undefined, [
-            state,
+            state, eltC,
             mkElt("div", undefined, eltA)
         ]);
         addScreenDebugRow(eltRow);

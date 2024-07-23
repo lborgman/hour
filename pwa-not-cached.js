@@ -1,5 +1,7 @@
 // See pwa.js for documentation
 
+const doSwReset = false;
+
 const version = "1.0.1";
 export function getVersion() { return version; }
 
@@ -49,6 +51,22 @@ if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
 
 export function startSW(urlSW) {
+    if (doSwReset) {
+        (async function () {
+            console.log("in async doSwReset");
+            debugger;
+            if (navigator.serviceWorker.controller !== null) { }
+            const regSW = await navigator.serviceWorker.getRegistrations();
+            console.log({ regSW });
+            regSW.forEach(reg => {
+                reg.unregister();
+            });
+            const regSW2 = await navigator.serviceWorker.getRegistrations();
+            console.log({ regSW2 });
+            navigator.serviceWorker.register("./sw-reset.js");
+        })();
+        return;
+    }
     ourUrlSW = urlSW;
     logStrongConsole("startSW", ourUrlSW);
     addDebugSWinfo();
@@ -66,6 +84,19 @@ function addDebugLocation(loc) {
 async function addDebugSWinfo() {
     const regs = await navigator.serviceWorker.getRegistrations();
     addScreenDebugRow(`Registered service workers: ${regs.length}`);
+    regs.forEach(reg => {
+        const active = reg.active;
+        const state = active.state;
+        const url = active.scriptURL;
+        console.log({active, state, url});
+        const eltA = mkElt("a", {href:url, target:"_blank"}, url);
+        eltA.style.marginLeft = "10px";
+        const eltRow = mkElt("span", undefined, [
+            state,
+            mkElt("div", undefined, eltA)
+        ]);
+        addScreenDebugRow(eltRow);
+    })
     const loc = location.href;
     addDebugLocation(loc);
     const u = new URL(loc);

@@ -88,7 +88,10 @@ function logStrongConsole(...msg) { console.log(`%cpwa.js`, logStrongStyle, ...m
 
 const idDebugSection = "pwa-debug-output";
 const secDebug = document.getElementById(idDebugSection);
-let mayLogToScreen = true;
+const keyLogToScreen = `${import.meta.url}-default-log-to-screen`;
+let mayLogToScreen = localStorage.getItem(keyLogToScreen) != null;
+if (mayLogToScreen && secDebug) { secDebug.style.display = "unset"; }
+
 function addScreenDebugRow(...txt) {
     if (!mayLogToScreen) return;
     if (secDebug == undefined) return;
@@ -183,12 +186,14 @@ async function loadNotCached() {
     }
     waitUntilNotCachedLoaded.tellReady();
 
+    /*
     if (secDebug) {
-        if (modNotCached.getMayLogToScreen) {
-            mayLogToScreen = modNotCached.getMayLogToScreen();
+        if (modNotCached.getDefaultLogToScreen) {
+            mayLogToScreen = modNotCached.getDefaultLogToScreen();
             if (mayLogToScreen) { secDebug.style.display = "unset"; }
         }
     }
+    */
 
     if (modNotCached.getSecPleaseWaitUpdating) {
         secPleaseWaitUpdating = modNotCached.getSecPleaseWaitUpdating();
@@ -239,13 +244,16 @@ export async function setVersionSWfun(funVersion) {
                     theEltVersion.addEventListener("click", evt => {
                         evt.stopPropagation();
                         const aPwsJs = mkElt("a", { href: import.meta.url, target: "_blank" }, "pwa.js");
+
                         const dlg = mkElt("dialog", { id: "pwa-dialog-versions" }, [
-                            mkElt("h2", undefined, "PWA version info"),
+                            mkElt("h2", undefined, "PWA info and debug"),
                             mkElt("p", undefined, [
-                                "This info is just for debugging.",
-                                " More info can be found in the beginning of the file ",
+                                mkElt("i", undefined, [
+                                    "This info is for developer debugging.",
+                                    " How to set up this is described in the beginning of the file ",
+                                ]),
                                 aPwsJs,
-                            ])
+                            ]),
                         ]);
                         dlg.appendChild(mkElt("div", undefined, `App version: ${getSavedAppVersion()}`));
 
@@ -275,6 +283,33 @@ export async function setVersionSWfun(funVersion) {
                             const v = versions[k];
                             dlg.appendChild(mkElt("div", undefined, `${k}: ${v}`));
                         }
+
+                        const chkLogToScreen = mkElt("input", { type: "checkbox" });
+                        chkLogToScreen.checked = mayLogToScreen;
+                        chkLogToScreen.addEventListener("input", evt => {
+                            mayLogToScreen = !mayLogToScreen;
+                            if (mayLogToScreen) {
+                                localStorage.setItem(keyLogToScreen, "may log to screen");
+                            } else {
+                                localStorage.removeItem(keyLogToScreen);
+                            }
+                            if (secDebug) {
+                                if (mayLogToScreen) {
+                                    secDebug.style.display = "unset";
+                                } else {
+                                    secDebug.style.display = "none";
+                                }
+                            }
+                        });
+                        dlg.appendChild(
+                            mkElt("p", undefined, [
+                                mkElt("span", undefined, [
+                                    mkElt("b", undefined, "Log to screen at start: "),
+                                    chkLogToScreen
+                                ])
+                            ]));
+
+
                         const btnClose = mkElt("button", undefined, "Close");
                         const divClose = mkElt("p", undefined, btnClose);
                         dlg.appendChild(divClose);

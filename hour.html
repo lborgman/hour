@@ -100,6 +100,7 @@
             cursor: pointer;
             opacity: 0.4;
         }
+
         #version:hover {
             opacity: 1;
         }
@@ -466,28 +467,6 @@
 
     <script type="module">
         const eltVersion = document.getElementById("version");
-        // const eltVersions = document.getElementById("versions");
-        // const eltVersionsPWA = document.getElementById("versions-pwa");
-        /*
-        eltVersion.addEventListener("click", evt => {
-            evt.stopPropagation();
-            if (!modPWA) return;
-            const versions = modPWA.getVersions();
-            console.log({ versions });
-            let txt = "";
-            for (const k in versions) {
-                txt += `${k}:`;
-                const v = versions[k];
-                txt += `${v} `;
-            }
-            eltVersionsPWA.textContent = txt;
-            eltVersions.classList.toggle("show-versions-pwa");
-        });
-        eltVersionsPWA.addEventListener("click", evt => {
-            evt.stopPropagation();
-            eltVersions.classList.toggle("show-versions-pwa");
-        })
-        */
         const versionSWfun = (ver) => {
             eltVersion.textContent = ver;
             return eltVersion;

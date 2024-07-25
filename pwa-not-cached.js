@@ -2,7 +2,7 @@
 
 const doSwReset = false;
 
-const version = "1.0.1";
+const version = "1.0.2";
 export function getVersion() { return version; }
 
 let pwaFuns;
@@ -15,7 +15,6 @@ function logConsole(...msg) {
 }
 function logStrongConsole(...msg) {
     console.log(`%cpwa-nc.js`, logStrongStyle, ...msg);
-    // debugger;
     addScreenDebugRow(...msg);
 }
 function warnConsole(...msg) { console.warn(`%cpwa-nc.js`, logStyle, ...msg); }
@@ -26,18 +25,14 @@ logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
 
 
 
-// Here is where the duration of "Updating, please..." can be customized:
 const secPleaseWaitUpdating = 3;
 const msPleaseWaitUpdating = secPleaseWaitUpdating * 1000;
 export function getSecPleaseWaitUpdating() { return secPleaseWaitUpdating; }
 
 
 let funVersion;
-// const idDebugSection = "pwa-debug-output";
-// let secDebug;
 let swVersion;
 let instWorkbox;
-let canUpdateNow = false;
 let ourUrlSW;
 
 
@@ -54,7 +49,6 @@ export function startSW(urlSW) {
     if (doSwReset) {
         (async function () {
             console.log("in async doSwReset");
-            debugger;
             if (navigator.serviceWorker.controller !== null) { }
             const regSW = await navigator.serviceWorker.getRegistrations();
             console.log({ regSW });
@@ -78,7 +72,6 @@ export function startSW(urlSW) {
 function addDebugLocation(loc) {
     const inner = mkElt("a", { href: loc }, loc);
     addScreenDebugRow(inner);
-    // logStrongConsole(inner);
 }
 
 async function addDebugSWinfo() {
@@ -105,12 +98,10 @@ async function addDebugSWinfo() {
     const u = new URL(loc);
     u.pathname = "manifest.json";
     addDebugLocation(u.href);
-    // addScreenDebugRow(`navigator.userAgentData.platform: ${navigator.userAgentData?.platform}`);
     logStrongConsole(`navigator.userAgentData.platform: ${navigator.userAgentData?.platform}`);
 }
 
 async function checkPWA() {
-    // logConsole("checkPWA");
     // https://web.dev/learn/pwa/detection/
     window.addEventListener('DOMContentLoaded', () => {
         let displayMode = 'browser tab';
@@ -133,7 +124,6 @@ async function checkPWA() {
 
 async function setupServiceWorker() {
     logConsole("setupServiceWorkder");
-    // const swRegistration = await navigator.serviceWorker.register('/service-worker.js'); //notice the file name
     const wb = await getWorkbox();
 
     wb.addEventListener("message",
@@ -159,7 +149,6 @@ async function setupServiceWorker() {
             // Depending on your web app, you may want to auto-save or
             // persist transient state before triggering the reload.
             logStrongConsole("event controlling, doing reload");
-            // debugger;
             window.location.reload();
         });
 
@@ -167,12 +156,9 @@ async function setupServiceWorker() {
         // updated service worker is still waiting.
         // You may want to customize the UI prompt accordingly.
 
-        canUpdateNow = true;
-
         const updateAccepted = await promptForUpdate();
 
         if (updateAccepted) {
-            // wb.messageSkipWaiting();
             setTimeout(() => wb.messageSkipWaiting(), msPleaseWaitUpdating);
         }
     };
@@ -192,14 +178,16 @@ async function setupServiceWorker() {
         regSW.active.addEventListener("error", evt => {
             logStrongConsole("activated, error event", evt);
         });
-        // logStrongConsole("service worker added error event listener");
         addDebugLocation(swLoc);
     });
+
 
     // FIXME: is this supported???
     wb.addEventListener('error', (event) => {
         console.log("%cError from sw", "color:orange; background:black", { error });
     });
+
+
     wb.getSW().then(sw => {
         sw.addEventListener("error", evt => {
             console.log("%cError from getSW sw", "color:red; background:black", { error });
@@ -251,7 +239,6 @@ function saveVersion(ver) {
 export function getDisplayMode() {
     let displayMode = 'browser';
     const mqStandAlone = '(display-mode: standalone)';
-    // console.log("navigator.standalone", navigator.standalone)
     if (navigator.standalone || window.matchMedia(mqStandAlone).matches) {
         displayMode = 'standalone';
     }
@@ -287,11 +274,9 @@ async function setupForInstall() {
     });
 
     window.addEventListener('appinstalled', () => {
-        // Hide the app-provided install promotion
         hideInstallPromotion();
         // Clear the deferredPrompt so it can be garbage collected
         deferredPrompt = null;
-        // Optionally, send analytics event to indicate successful install
         logConsole('PWA was installed');
     });
 
@@ -303,15 +288,11 @@ async function setupForInstall() {
         ]),
         mkElt("p", undefined, ["navigator.userAgentData.platform: ", navigator.userAgentData?.platform]),
     ]);
-    // dialogInstallPromotion.style.display = "none";
     const btnInstall = mkElt("button", undefined, "Install");
     btnInstall.addEventListener("click", async (evt) => {
         deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
         const { outcome } = await deferredPrompt.userChoice;
-        // Optionally, send analytics event with outcome of user choice
         logConsole(`User response to the install prompt: ${outcome}`);
-        // We've used the prompt, and can't use it again, throw it away
         deferredPrompt = null;
     });
 
@@ -331,7 +312,6 @@ async function setupForInstall() {
     }
     function hideInstallPromotion() {
         logInstallEvent("hideInstallPromotion");
-        // dialogInstallPromotion.style.display = "none";
     }
     async function createEltInstallPromotion() {
         logInstallEvent("createEltInstallPromotion START");
@@ -368,6 +348,7 @@ function mkSnackbar(msg, color, bgColor, left, bottom, msTime) {
 async function getWorkbox() {
     if (!instWorkbox) {
         // https://developer.chrome.com/docs/workbox/using-workbox-window
+        const urlWorkboxWindow = "https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-window.prod.mjs";
         const modWb = await import("https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-window.prod.mjs");
         instWorkbox = new modWb.Workbox(ourUrlSW);
     }
@@ -375,10 +356,7 @@ async function getWorkbox() {
 }
 
 
-export function setVersionSWfun(fun) {
-    funVersion = fun;
-    // logConsole("got version fun", funVersion);
-}
+export function setVersionSWfun(fun) { funVersion = fun; }
 
 async function updateNow() {
     logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 1");
@@ -387,12 +365,8 @@ async function updateNow() {
     wb.messageSkipWaiting();
 }
 
-export function setPWAfuns(objFuns) {
-    pwaFuns = objFuns;
-}
-function mkElt(type, attrib, inner) {
-    return pwaFuns["mkElt"](type, attrib, inner);
-}
+export function setPWAfuns(objFuns) { pwaFuns = objFuns; }
+function mkElt(type, attrib, inner) { return pwaFuns["mkElt"](type, attrib, inner); }
 
 async function promptForUpdate() {
     logConsole("prompt4update 1");
@@ -408,8 +382,6 @@ function addScreenDebugRow(...txt) {
     mark.style = logStyle + "margin-right:5px;";
     return pwaFuns["addScreenDebugRow"](mark, ...txt);
 }
-
-// export function getDefaultLogToScreen() { return false; }
 
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

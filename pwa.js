@@ -1,4 +1,4 @@
-const version = "1.1.6";
+const version = "1.2.1";
 
 /*
     This is a boilerplate for handling a simple PWA.
@@ -143,8 +143,8 @@ class WaitUntil {
 
 const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
 async function loadNotCached() {
-    let isOnLine = navigator.onLine;
-    // console.log({ isOnLine });
+    // FIX-ME: What happens when !navigator.onLine ?
+    let isOnLine = PWAonline();
     if (isOnLine) {
         urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
         const ncVal = new Date().toISOString().slice(0, -5);
@@ -186,16 +186,7 @@ async function loadNotCached() {
     }
     waitUntilNotCachedLoaded.tellReady();
 
-    /*
-    if (secDebug) {
-        if (modNotCached.getDefaultLogToScreen) {
-            mayLogToScreen = modNotCached.getDefaultLogToScreen();
-            if (mayLogToScreen) { secDebug.style.display = "unset"; }
-        }
-    }
-    */
-
-    if (modNotCached.getSecPleaseWaitUpdating) {
+    if (modNotCached?.getSecPleaseWaitUpdating) {
         secPleaseWaitUpdating = modNotCached.getSecPleaseWaitUpdating();
         msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
     }
@@ -210,36 +201,26 @@ async function loadNotCached() {
     addCSS();
     logStrongConsole("loadNotCached", { modNotCached });
 }
-if (navigator.onLine) {
+if (PWAonline()) {
     loadNotCached();
 } else {
     window.addEventListener("online", evt => { loadNotCached(); }, { once: true });
 }
 
-function saveAppVersion(version) {
-    const keyVersion = `PWA-version ${import.meta.url}`;
-    localStorage.setItem(keyVersion, version);
-}
-function getSavedAppVersion() {
-    const keyVersion = `PWA-version ${import.meta.url}`;
-    return localStorage.getItem(keyVersion);
-}
+const keyVersion = `PWA-version ${import.meta.url}`;
+function saveAppVersion(version) { localStorage.setItem(keyVersion, version); }
+function getSavedAppVersion() { return localStorage.getItem(keyVersion); }
 
 const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
 export async function setVersionSWfun(funVersion) {
     theFunVersion = funVersion;
-    // const keyVersion = `PWA-version ${import.meta.url}`;
-    // logConsole({ keyVersion });
-    if (navigator.onLine) {
-        // if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
+    if (PWAonline()) {
         const funVerSet = (version) => {
-            // localStorage.setItem(keyVersion, version);
             saveAppVersion(version);
             if (theFunVersion) {
                 const oldEltVersion = theEltVersion;
                 theEltVersion = theFunVersion(version);
                 if (!oldEltVersion) {
-                    // theEltVersion.style.cursor = "pointer";
                     theEltVersion.title = "Click to show more about version";
                     theEltVersion.addEventListener("click", evt => {
                         evt.stopPropagation();
@@ -320,7 +301,6 @@ export async function setVersionSWfun(funVersion) {
                         });
                         dlg.showModal();
                         setTimeout(() => btnClose.focus(), 100);
-                        // alert(`Clicked "${theEltVersion.id}"`);
                     });
                 }
             }
@@ -328,72 +308,16 @@ export async function setVersionSWfun(funVersion) {
         await waitUntilNotCachedLoaded.promReady();
         modNotCached?.setVersionSWfun(funVerSet);
     } else {
-        // const storedVersion = localStorage.getItem(keyVersion);
         const storedVersion = getSavedAppVersion();
-        if (funVersion) { funVersion(storedVersion + " (offline)"); }
+        if (funVersion) { funVersion(storedVersion); }
     }
-    // logConsole("setVersionSWfun done");
     waitUntilSetVerFun.tellReady();
 }
-export async function setUpdateTitle(strTitle) {
-    updateTitle = strTitle;
-}
+export async function setUpdateTitle(strTitle) { updateTitle = strTitle; }
 export async function startSW(urlSW) {
-    if (navigator.onLine) { await waitUntilNotCachedLoaded.promReady(); }
-    const uSW = new URL(urlSW, location);
-
-    /*
-    let maybeGithubPages = false;
-    let sureIsGithubPages = false;
-
-    const path = uSW.pathname;
-    console.log({ path });
-    const lastIdx = path.lastIndexOf("/");
-    const swOnTop = lastIdx == 0;
-
-    let onTopProblem;
-    if (!swOnTop) {
-        onTopProblem = false;
-    } else {
-        if (["localhost", "127.0.0.1"].includes(uSW.hostname)) {
-            const uGitConfig = new URL("./.git/config", uSW);
-            const c = await fetch(uGitConfig);
-            if (c.ok) {
-                const t = await c.text();
-                if (t.search("https://github.com/") > 0) {
-                    // Could be an indication that GitHub Pages are used, but we can't be sure.
-                    maybeGithubPages = true;
-                }
-            }
-            const dlg = mkElt("dialog", {id:"pwa-dialog-sw-on-top"}, [
-                mkElt("h2", undefined, "Service worker at top of domain"),
-                mkElt("p", undefined, [
-                    "The ",
-                    mkElt("a", { href: uSW.href, tarrget: "_blank" }, "service worker"),
-                    ` for this page is placed at the top of the domain `,
-                    mkElt("a", {href:"${uSW.host}"}, `${uSW.protocol}//${uSW.host}/`),
-                    `. That may lead to conflicts with other service workers in this domain.`
-                ]),
-            ]);
-            if (maybeGithubPages) {
-                dlg.appendChild(
-                    mkElt("p", undefined, [
-                        `A situation where this can be a problem is when you are hosting
-                        several PWA:s on GitHub pages.
-                        (I can't tell if you are doing that,
-                        but I can see you are using GitHub for this project.)`
-                    ])
-                );
-            }
-            document.body.appendChild(dlg);
-            dlg.showModal();
-        } else if (uSW.hostname.slice(-10) == ".github.io") {
-            sureIsGithubPages = true;
-        }
-    }
-    */
-
-    modNotCached?.startSW(urlSW);
+    if (!PWAonline()) { return; }
+    await waitUntilNotCachedLoaded.promReady();
+    modNotCached.startSW(urlSW);
 }
 
 
@@ -505,7 +429,7 @@ function addCSS() {
 
 
 function mkElt(type, attrib, inner) {
-    var elt = document.createElement(type);
+    const elt = document.createElement(type);
 
     function addInner(inr) {
         if (inr instanceof Element) {
@@ -517,66 +441,73 @@ function mkElt(type, attrib, inner) {
     }
     if (inner) {
         if (inner.length && typeof inner != "string") {
-            for (var i = 0; i < inner.length; i++)
+            for (let i = 0; i < inner.length; i++)
                 if (inner[i])
                     addInner(inner[i]);
         } else
             addInner(inner);
     }
-    for (var x in attrib) {
+    for (const x in attrib) {
         elt.setAttribute(x, attrib[x]);
     }
     return elt;
 }
 
-let dlgPromptUpdate;
 async function promptForUpdate(waitingVersion) {
-    logConsole("prompt4update 1");
-
-    // const wb = await getWorkbox();
-    // logConsole("prompt4update 3");
-    // const waitingVersion = await wb.messageSW({ type: 'GET_VERSION' });
-    // logConsole("prompt4update 4");
-
-    // const divErrLine = mkElt("p");
     const btnSkip = mkElt("button", undefined, "Skip");
     const btnUpdate = mkElt("button", undefined, "Update");
     const divPromptButtons = mkElt("p", undefined, [btnUpdate, btnSkip]);
-    dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
+    const dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
         mkElt("h2", undefined, updateTitle),
         mkElt("p", undefined, [
             "Update available:",
             mkElt("div", undefined, `version ${waitingVersion}`)
         ]),
-        // divErrLine,
         divPromptButtons
     ]);
     document.body.appendChild(dlgPromptUpdate);
     dlgPromptUpdate.showModal();
-    logConsole("prompt4update 5");
 
     return new Promise((resolve, reject) => {
-        const evtUA = new CustomEvent("pwa-update-available");
-        window.dispatchEvent(evtUA);
-
         btnSkip.addEventListener("click", evt => {
-            logConsole("prompt4update 8");
             resolve(false);
             dlgPromptUpdate.classList.add("transparent");
             setTimeout(() => { dlgPromptUpdate.remove(); }, msDlgUpdateTransition);
         });
         btnUpdate.addEventListener("click", evt => {
-            logConsole("prompt4update 9");
             dlgPromptUpdate.textContent = "Updating, please wait ...";
-            // dlgPromptUpdate.style.boxShadow = "3px 5px 5px 12px rgba(255,255,255,0.75)";
             dlgPromptUpdate.classList.add("updating");
             window.onbeforeunload = null;
             resolve(true);
             theFunVersion("Updating");
             setTimeout(() => {
-                console.log("adding class transparent");
                 dlgPromptUpdate.classList.add("transparent");
             }, msPleaseWaitUpdating);
         });
     });
+}
+
+
+
+// https://dev.to/maxmonteil/is-your-app-online-here-s-how-to-reliably-know-in-just-10-lines-of-js-guide-3in7
+// Saving this, looks useful...
+export async function PWAonline() {
+    if (!window.navigator.onLine) return false
+
+    // avoid CORS errors with a request to your own origin
+    const url = new URL(window.location.origin)
+
+    // random value to prevent cached responses
+    function getRandomString() { return Math.random().toString(36).substring(2, 15) }
+    url.searchParams.set('rand', getRandomString())
+
+    try {
+        const response = await fetch(
+            url.toString(),
+            { method: 'HEAD' },
+        )
+        return response.ok
+    } catch {
+        return false
+    }
 }

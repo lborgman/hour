@@ -2,7 +2,7 @@
 
 const doSwReset = false;
 
-const version = "1.1.0";
+const version = "1.0.2";
 export function getVersion() { return version; }
 
 let pwaFuns;
@@ -30,8 +30,8 @@ const msPleaseWaitUpdating = secPleaseWaitUpdating * 1000;
 export function getSecPleaseWaitUpdating() { return secPleaseWaitUpdating; }
 
 
-// let funVersion;
-// let swVersion;
+let funVersion;
+let swVersion;
 let instWorkbox;
 let ourUrlSW;
 
@@ -45,9 +45,9 @@ if (params.length != 1 || params[0] != "nocache") {
 if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
 
-export async function startSW(urlSW) {
+export function startSW(urlSW) {
     if (doSwReset) {
-        await (async function () {
+        (async function () {
             console.log("in async doSwReset");
             if (navigator.serviceWorker.controller !== null) { }
             const regSW = await navigator.serviceWorker.getRegistrations();
@@ -63,10 +63,10 @@ export async function startSW(urlSW) {
     }
     ourUrlSW = urlSW;
     logStrongConsole("startSW", ourUrlSW);
-    await addDebugSWinfo();
-    await checkPWA();
+    addDebugSWinfo();
+    checkPWA();
     setupForInstall();
-    await setupServiceWorker();
+    setupServiceWorker();
 }
 
 function addDebugLocation(loc) {
@@ -74,60 +74,25 @@ function addDebugLocation(loc) {
     addScreenDebugRow(inner);
 }
 
-
-
 async function addDebugSWinfo() {
-
-    // await checkRegistration();
-    async function checkRegistration() {
-        // I can't find any really good and simple documentation for this.
-        // (I avoid specs...)
-        // https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorker/state
-        const regs = await navigator.serviceWorker.getRegistrations();
-        addScreenDebugRow(`Registered service workers: ${regs.length}`);
-        regs.forEach(reg => {
-            const isController = reg.active === navigator.serviceWorker.controller;
-            const regActive = reg["active"];
-            console.log({ regActive });
-            console.log({ isController });
-
-            const eltC = isController ? mkElt("b", undefined, " controller") : "";
-
-            let stateOfReg;
-            const statesOfReg = [
-                "active",
-
-                "parsed",
-                "installing",
-                "installed",
-                "activating",
-                "activated",
-                "redundant",
-            ];
-            statesOfReg.forEach(s => {
-                const r = reg[s];
-                if (r !== undefined) {
-                    if (stateOfReg) console.error(`Already state ${stateOfReg}`);
-                    stateOfReg = s;
-                    console.log(s, r);
-                    if (r) {
-                        const state = r.state;
-                        const url = r.scriptURL;
-                        console.log(r, state, url);
-                    }
-                }
-            });
-
-            const eltA = mkElt("a", { href: url, target: "_blank" }, url);
-            eltA.style.marginLeft = "10px";
-            const eltRow = mkElt("span", undefined, [
-                stateOfReg, eltC,
-                mkElt("div", undefined, eltA)
-            ]);
-            addScreenDebugRow(eltRow);
-        });
-    }
-
+    const regs = await navigator.serviceWorker.getRegistrations();
+    addScreenDebugRow(`Registered service workers: ${regs.length}`);
+    regs.forEach(reg => {
+        const isController = reg.active === navigator.serviceWorker.controller;
+        console.log({ isController });
+        const eltC = isController ? mkElt("b", undefined, " controller") : "";
+        const active = reg.active;
+        const state = active.state;
+        const url = active.scriptURL;
+        console.log({ active, state, url });
+        const eltA = mkElt("a", { href: url, target: "_blank" }, url);
+        eltA.style.marginLeft = "10px";
+        const eltRow = mkElt("span", undefined, [
+            state, eltC,
+            mkElt("div", undefined, eltA)
+        ]);
+        addScreenDebugRow(eltRow);
+    })
     const loc = location.href;
     addDebugLocation(loc);
     const u = new URL(loc);
@@ -162,6 +127,7 @@ async function setupServiceWorker() {
     const wb = await getWorkbox();
 
     wb.addEventListener("message",
+        // FIX-ME: errorHandlerAsyncEvent(async evt => {
         async evt => {
             logStrongConsole("got message", { evt });
             // snackbar, broadcastToClients, keepAliveCounter, messageSW
@@ -244,17 +210,19 @@ async function setupServiceWorker() {
         // (this happens during "hard reload" and when Lighthouse tests).
         // https://www.youtube.com/watch?v=1d3KgacJv1I
         if (navigator.serviceWorker.controller !== null) {
+            const messageChannelName = new MessageChannel();
+            // navigator.serviceWorker.controller.postMessage({ type: "TELL_SW_NAME", SW_NAME: ourUrlSW }, [messageChannelName.port2]);
             navigator.serviceWorker.controller.postMessage({ type: "TELL_SW_NAME", SW_NAME: ourUrlSW });
 
-            // const messageChannelVersion = new MessageChannel();
-            // messageChannelVersion.port1.onmessage = (event) => { saveVersion(event.data); };
-            // navigator.serviceWorker.controller.postMessage({ type: "GET_VERSION" }, [messageChannelVersion.port2]);
+            const messageChannelVersion = new MessageChannel();
+            messageChannelVersion.port1.onmessage = (event) => { saveVersion(event.data); };
+            navigator.serviceWorker.controller.postMessage({ type: "GET_VERSION" }, [messageChannelVersion.port2]);
 
         } else {
             addScreenDebugRow(`Service Worker version: controller is null`);
         }
 
-        // return swRegistration;
+        return swRegistration;
     } catch (err) {
         console.error("Service worker registration failed", { err });
         alert(err);
@@ -262,25 +230,29 @@ async function setupServiceWorker() {
     }
 }
 
-/*
 function saveVersion(ver) {
     swVersion = ver;
     logConsole(`Service Worker version: ${swVersion}`);
     if (funVersion) { funVersion(swVersion); }
 }
-*/
 
-function setupForInstall() {
+export function getDisplayMode() {
+    let displayMode = 'browser';
+    const mqStandAlone = '(display-mode: standalone)';
+    if (navigator.standalone || window.matchMedia(mqStandAlone).matches) {
+        displayMode = 'standalone';
+    }
+    return displayMode;
+}
+
+async function setupForInstall() {
     // FIX-ME: leave this here for now because it does not seem to be stable in Chromium.
     // Maybe have a close look on these?
     // https://love2dev.com/pwa/add-to-homescreen-library/
     // https://web.dev/learn/pwa/detection
 
     logStrongConsole("setupForInstall");
-    // const displayMode = getDisplayMode();
-    const getDisplayMode = pwaFuns["getDisplayMode"];
-    logConsole({ getDisplayMode });
-    const displayMode = getDisplayMode ? getDisplayMode() : undefined;
+    const displayMode = getDisplayMode();
     logConsole({ displayMode });
     if (displayMode != "standalone") { logConsole("using default install!"); return; }
 
@@ -377,12 +349,14 @@ async function getWorkbox() {
     if (!instWorkbox) {
         // https://developer.chrome.com/docs/workbox/using-workbox-window
         const urlWorkboxWindow = "https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-window.prod.mjs";
-        const modWb = await import(urlWorkboxWindow);
+        const modWb = await import("https://storage.googleapis.com/workbox-cdn/releases/6.2.0/workbox-window.prod.mjs");
         instWorkbox = new modWb.Workbox(ourUrlSW);
     }
-    return instWorkbox;
+    if (instWorkbox) return instWorkbox
 }
 
+
+export function setVersionSWfun(fun) { funVersion = fun; }
 
 async function updateNow() {
     logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 1");
@@ -391,10 +365,7 @@ async function updateNow() {
     wb.messageSkipWaiting();
 }
 
-export function setPWAfuns(objFuns) {
-    pwaFuns = objFuns;
-    // pwaFuns = {}; // FIX-ME: error handling test
-}
+export function setPWAfuns(objFuns) { pwaFuns = objFuns; }
 function mkElt(type, attrib, inner) { return pwaFuns["mkElt"](type, attrib, inner); }
 
 async function promptForUpdate() {
@@ -411,14 +382,6 @@ function addScreenDebugRow(...txt) {
     mark.style = logStyle + "margin-right:5px;";
     return pwaFuns["addScreenDebugRow"](mark, ...txt);
 }
-
-
-// test TypeError
-// const eltNone= document.getElementById("NONE"); eltNone.remove();
-
-// test SyntaxError
-// function testSyntaxError() { await import("dummy"); }
-
 
 // https://web.dev/customize-install/#detect-launch-type
 // https://web.dev/manifest-updates/

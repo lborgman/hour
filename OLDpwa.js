@@ -1,10 +1,10 @@
-const version = "1.5.1";
+const version = "1.2.1";
 
 /*
     This is a boilerplate for handling a simple PWA.
     The current version of this file should always be available at
 
-        https://github.com/lborgman/hour
+        https://github.com/lborgman/hour/blob/main/pwa.js
 
     This pwa handler consists of 3 parts:
     
@@ -71,13 +71,13 @@ const version = "1.5.1";
 
 
 const versions = {
-    "pwa.js": version,
-    "pwa-not-cached.js": "not available"
+    "pwa.js": version
 }
 
 export function getVersions() {
     return versions;
 }
+
 
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
@@ -130,8 +130,6 @@ const msDlgUpdateTransition = 1000 * secDlgUpdateTransition;
 let secPleaseWaitUpdating = 2000;
 let msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
 
-addCSS();
-
 class WaitUntil {
     #evtName; #target; #prom;
     constructor(evtName, target) {
@@ -152,45 +150,35 @@ async function loadNotCached() {
         const ncVal = new Date().toISOString().slice(0, -5);
         urlPWA.searchParams.set("nocache", ncVal);
         let href = urlPWA.href;
-
-        // Browsers return TypeError when module is not found. Strange, but...
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import
-        //   If moduleName refers to a module that doesn't exist, rejects with TypeError (all browsers).
-        let errCls;
-        let ourErr;
-        const errMsgs = [];
         try {
             modNotCached = await import(href);
         } catch (err) {
-            errCls = err.constructor.name
-            ourErr = err;
-            // errMsgs.push(mkElt("b", undefined, errCls));
-            // const errMsg = err.message;
-            // errMsgs.push(errMsg);
-            // logStrongConsole(errMsg, errCls);
-            // console.trace(err);
-            console.error(err);
+            logStrongConsole(err.toString());
         }
         if (!modNotCached) {
-            const dlgErr = startDlgErr("Error loading pwa-not-cached.js", ourErr);
+            // If not loaded get http status code
+            const f = await fetch(href);
+            console.log(f);
+            const msg = `*ERROR* http status ${f.status}, could not fetch file ${href}`;
+            console.error(msg);
+            const eltErr = document.createElement("dialog");
+            eltErr.textContent = msg;
+            eltErr.style = `
+                background-color: red;
+                color: yellow;
+                padding: 1rem;
+                font-size: 1.2rem;
+                max-width: 300px;
+            `;
+            const btnClose = document.createElement("button");
+            btnClose.textContent = "Close";
+            btnClose.addEventListener("click", evt => { eltErr.remove(); })
+            const pClose = document.createElement("p");
+            pClose.appendChild(btnClose);
+            eltErr.appendChild(pClose);
 
-            let isFetchError = false;
-            if (errCls == "TypeError") {
-                const f = await fetch(href);
-                console.log(f);
-                if (!f.ok) {
-                    isFetchError = true;
-                    errMsgs.push(`HTTP status: ${f.status}`);
-                    errMsgs.push(mkElt("a", { href, target: "_blank" }, href));
-                }
-            }
-            errMsgs.forEach(m => {
-                dlgErr.appendChild(mkElt("div", undefined, m));
-            });
-            dlgErr.appendChild
-
-            finishAndShowDlgErr(dlgErr, !isFetchError);
-            waitUntilNotCachedLoaded.tellReady();
+            document.body.appendChild(eltErr);
+            eltErr.showModal();
             return;
         }
     } else {
@@ -205,27 +193,14 @@ async function loadNotCached() {
 
     versions["pwa-not-cached.js"] = modNotCached.getVersion();
     const myFuns = {
-        "addScreenDebugRow": addScreenDebugRow,
-        "getDisplayMode": getDisplayMode,
         "mkElt": mkElt,
         "promptForUpdate": promptForUpdate,
+        "addScreenDebugRow": addScreenDebugRow,
     }
+    modNotCached.setPWAfuns(myFuns);
     addCSS();
-    if (!modNotCached.setPWAfuns) {
-        const dlgErr = startDlgErr("Can't find setPWAfuns");
-        dlgErr.appendChild(mkElt("p", undefined,
-            `pwa-not-cached.js must export a function with this name.
-            It will be called with an object of named utility functions from pwa.js.
-            `
-        ));
-        finishAndShowDlgErr(dlgErr, false);
-    } else {
-        modNotCached.setPWAfuns(myFuns);
-    }
     logStrongConsole("loadNotCached", { modNotCached });
 }
-
-
 if (PWAonline()) {
     loadNotCached();
 } else {
@@ -238,136 +213,113 @@ function getSavedAppVersion() { return localStorage.getItem(keyVersion); }
 
 const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
 export async function setVersionSWfun(funVersion) {
-    if (theFunVersion) {
-        if (theFunVersion === funVersion) {
-            throw Error("setVersionSWfun called 2 times with same argument");
-        }
-        throw Error("setVersionSWfun called 2 times with different argument");
-    }
     theFunVersion = funVersion;
-    const storedVersion = getSavedAppVersion() || "No ver";
-    theEltVersion = theFunVersion(storedVersion);
-    if (theEltVersion) {
-        theEltVersion.title = "Click to show more about version";
-        theEltVersion.addEventListener("click", evt => {
-            evt.stopPropagation();
-            const aPwsJs = mkElt("a", { href: import.meta.url, target: "_blank" }, "pwa.js");
+    if (PWAonline()) {
+        const funVerSet = (version) => {
+            saveAppVersion(version);
+            if (theFunVersion) {
+                const oldEltVersion = theEltVersion;
+                theEltVersion = theFunVersion(version);
+                if (theEltVersion) {
+                    if (!oldEltVersion) {
+                        theEltVersion.title = "Click to show more about version";
+                        theEltVersion.addEventListener("click", evt => {
+                            evt.stopPropagation();
+                            const aPwsJs = mkElt("a", { href: import.meta.url, target: "_blank" }, "pwa.js");
 
-            const dlg = mkElt("dialog", { id: "pwa-dialog-versions" }, [
-                mkElt("h2", undefined, "PWA info and debug"),
-                mkElt("p", undefined, [
-                    mkElt("i", undefined, [
-                        "This info is for developer debugging.",
-                        " How to set up this is described in the beginning of the file ",
-                    ]),
-                    aPwsJs,
-                ]),
-            ]);
-            dlg.appendChild(mkElt("div", undefined, `App version: ${getSavedAppVersion()}`));
+                            const dlg = mkElt("dialog", { id: "pwa-dialog-versions" }, [
+                                mkElt("h2", undefined, "PWA info and debug"),
+                                mkElt("p", undefined, [
+                                    mkElt("i", undefined, [
+                                        "This info is for developer debugging.",
+                                        " How to set up this is described in the beginning of the file ",
+                                    ]),
+                                    aPwsJs,
+                                ]),
+                            ]);
+                            dlg.appendChild(mkElt("div", undefined, `App version: ${getSavedAppVersion()}`));
 
-            dlg.appendChild(mkElt("div", undefined, "Service Worker:"));
-            const appendIndentedRow = (txt) => {
-                const row = mkElt("div", undefined, txt);
-                row.style.marginLeft = "10px";
-                dlg.appendChild(row);
-            }
-            const swController = navigator.serviceWorker.controller;
-            if (swController == null) {
-                appendIndentedRow("null");
-            } else {
-                const u = swController.scriptURL;
-                const aSW = mkElt("a", { href: u, target: "_blank" }, u);
-                appendIndentedRow(mkElt("div", undefined, [
-                    "scriptURL: ",
-                    aSW
-                ]));
-                appendIndentedRow(mkElt("div", undefined, [
-                    "state: ",
-                    swController.state
-                ]));
-            }
+                            dlg.appendChild(mkElt("div", undefined, "Service Worker:"));
+                            const sw = navigator.serviceWorker.controller;
+                            const appendIndentedRow = (txt) => {
+                                const row = mkElt("div", undefined, txt);
+                                row.style.marginLeft = "10px";
+                                dlg.appendChild(row);
+                            }
+                            if (sw == null) {
+                                appendIndentedRow("null");
+                            } else {
+                                const u = sw.scriptURL;
+                                const aSW = mkElt("a", { href: u, target: "_blank" }, u);
+                                appendIndentedRow(mkElt("div", undefined, [
+                                    "scriptURL: ",
+                                    aSW
+                                ]));
+                                appendIndentedRow(mkElt("div", undefined, [
+                                    "state: ",
+                                    sw.state
+                                ]));
+                            }
 
-            for (const k in versions) {
-                const v = versions[k];
-                dlg.appendChild(mkElt("div", undefined, `${k}: ${v}`));
-            }
+                            for (const k in versions) {
+                                const v = versions[k];
+                                dlg.appendChild(mkElt("div", undefined, `${k}: ${v}`));
+                            }
 
-            const chkLogToScreen = mkElt("input", { type: "checkbox" });
-            chkLogToScreen.checked = mayLogToScreen;
-            chkLogToScreen.addEventListener("input", evt => {
-                mayLogToScreen = !mayLogToScreen;
-                if (mayLogToScreen) {
-                    localStorage.setItem(keyLogToScreen, "may log to screen");
-                } else {
-                    localStorage.removeItem(keyLogToScreen);
-                }
-                if (secDebug) {
-                    if (mayLogToScreen) {
-                        secDebug.style.display = "unset";
-                    } else {
-                        secDebug.style.display = "none";
+                            const chkLogToScreen = mkElt("input", { type: "checkbox" });
+                            chkLogToScreen.checked = mayLogToScreen;
+                            chkLogToScreen.addEventListener("input", evt => {
+                                mayLogToScreen = !mayLogToScreen;
+                                if (mayLogToScreen) {
+                                    localStorage.setItem(keyLogToScreen, "may log to screen");
+                                } else {
+                                    localStorage.removeItem(keyLogToScreen);
+                                }
+                                if (secDebug) {
+                                    if (mayLogToScreen) {
+                                        secDebug.style.display = "unset";
+                                    } else {
+                                        secDebug.style.display = "none";
+                                    }
+                                }
+                            });
+                            dlg.appendChild(
+                                mkElt("p", undefined, [
+                                    mkElt("span", undefined, [
+                                        mkElt("b", undefined, "Log to screen at start: "),
+                                        chkLogToScreen
+                                    ])
+                                ]));
+
+
+                            const btnClose = mkElt("button", undefined, "Close");
+                            const divClose = mkElt("p", undefined, btnClose);
+                            dlg.appendChild(divClose);
+                            document.body.appendChild(dlg);
+                            btnClose.addEventListener("click", evt => {
+                                dlg.close();
+                                dlg.remove();
+                            });
+                            dlg.showModal();
+                            setTimeout(() => btnClose.focus(), 100);
+                        });
                     }
                 }
-            });
-            dlg.appendChild(
-                mkElt("p", undefined, [
-                    mkElt("span", undefined, [
-                        mkElt("b", undefined, "Log to screen at start: "),
-                        chkLogToScreen
-                    ])
-                ]));
-
-
-            const btnClose = mkElt("button", undefined, "Close");
-            const divClose = mkElt("p", undefined, btnClose);
-            dlg.appendChild(divClose);
-            document.body.appendChild(dlg);
-            btnClose.addEventListener("click", evt => {
-                dlg.close();
-                dlg.remove();
-            });
-            showDialogModal(dlg);
-            setTimeout(() => btnClose.focus(), 100);
-        });
+            }
+        }
+        await waitUntilNotCachedLoaded.promReady();
+        modNotCached?.setVersionSWfun(funVerSet);
+    } else {
+        const storedVersion = getSavedAppVersion();
+        if (funVersion) { funVersion(storedVersion); }
     }
-    if (PWAonline()) {
-        // FIX-ME: what were are thinking for this???
-    }
-    function onGotVersion(version) {
-        saveAppVersion(version);
-        if (theFunVersion) { theFunVersion(version); }
-    }
-    const messageChannelVersion = new MessageChannel();
-    messageChannelVersion.port1.onmessage = (event) => { onGotVersion(event.data); };
-    const swController = navigator.serviceWorker.controller;
-    swController.postMessage({ type: "GET_VERSION" }, [messageChannelVersion.port2]);
     waitUntilSetVerFun.tellReady();
 }
 export async function setUpdateTitle(strTitle) { updateTitle = strTitle; }
 export async function startSW(urlSW) {
     if (!PWAonline()) { return; }
     await waitUntilNotCachedLoaded.promReady();
-    if (!modNotCached) return;
-    if (typeof modNotCached.startSW != "function") {
-        const dlgErr = startDlgErr("Can't find startSW");
-        const aGithub = mkElt("a", { href: "https://github.com/lborgman/hour" },
-            "https://github.com/lborgman/hour");
-        dlgErr.appendChild(mkElt("p", undefined, [
-            `pwa-not-cached.js must export a function with this name.
-            For more info about this function see the example at
-            `,
-            aGithub
-        ]));
-        finishAndShowDlgErr(dlgErr, false);
-        return;
-    }
-    try {
-        await modNotCached.startSW(urlSW);
-    } catch (err) {
-        console.log({ err });
-        const dlgErr = startDlgErr("Can't start service worker", err);
-        finishAndShowDlgErr(dlgErr, true);
-    }
+    modNotCached.startSW(urlSW);
 }
 
 
@@ -387,51 +339,45 @@ function addCSS() {
     eltCSS.id = idCSS;
     eltCSS.textContent =
         `
-        dialog {
+        dialog#pwa-dialog-versions {
             max-width: 300px;
+            background: wheat;
+            background: linear-gradient(240deg, #00819c 0%, #545b98 100%);
+            color: black;
             border-radius: 4px;
             font-size: 16px;
-            padding: 20px;
-            box-shadow: black 8px 8px 8px;
         }
 
-        dialog::backdrop {
+        dialog#pwa-dialog-versions::backdrop {
             background-color: black;
             opacity: 0.5;
         }
 
-        dialog a {
+        dialog#pwa-dialog-versions a {
             color: darkblue;
         }
-
-        dialog button {
-            font-size: 1rem;
-        }
-
-        dialog>h2 {
-            font-size: 20px;
-            font-style: italic;
-        }
-
-
-
-        dialog#pwa-dialog-versions {
-            background: wheat;
-            background: linear-gradient(240deg, #00819c 0%, #545b98 100%);
-            color: black;
-        }
-
 
 
         dialog#pwa-dialog-update {
             background: linear-gradient(200deg, #4b6cb7 0%, #182848 100%);
             background: linear-gradient(240deg, #00819c 0%, #3a47d5 100%);
             background: linear-gradient(240deg, #00819c 0%, #2b35a3 100%);
-            font-size: 18px;
+            font-size: 1.2rem;
             color: white;
             border: 2px solid white;
+            border-radius: 4px;
+            max-width: 80vw;
             opacity: 1;
             transition: opacity ${secDlgUpdateTransition}s;
+        }
+
+        dialog#pwa-dialog-update>h2 {
+            font-size: 1.3rem;
+            font-style: italic;
+        }
+
+        dialog#pwa-dialog-update>p>button {
+            font-size: 1rem;
         }
 
         dialog#pwa-dialog-update>p:last-child {
@@ -440,6 +386,8 @@ function addCSS() {
         }
 
         dialog#pwa-dialog-update::backdrop {
+            background-color: black;
+            opacity: 0.5;
             /* not inherited by default */
             transition: inherit;
         }
@@ -455,20 +403,6 @@ function addCSS() {
         dialog#pwa-dialog-update.updating {
             box-shadow: 3px 5px 5px 12px rgba(255,255,127,0.75);
         }
-
-
-        dialog#dialog-err-pwa {
-            background-color: darkred;
-            color: yellow;
-            max-width: 90vw;
-        }
-        dialog#dialog-err-pwa a {
-            display: block;
-            color: lightskyblue;
-            padding: 10px;
-            margin-top: 5px;
-        }
-
 
 
         #pwa-debug-output {
@@ -568,91 +502,14 @@ export async function PWAonline() {
     // random value to prevent cached responses
     function getRandomString() { return Math.random().toString(36).substring(2, 15) }
     url.searchParams.set('rand', getRandomString())
-    let urlHref = url.href;
-    console.log("try to fetch", urlHref);
 
     try {
-        const response = await fetch(urlHref, { method: 'HEAD' },)
-        // console.trace("got response", response);
-        // Any response is ok here
-        return true;
+        const response = await fetch(
+            url.toString(),
+            { method: 'HEAD' },
+        )
+        return response.ok
     } catch {
-        console.log("didn't get response");
         return false
     }
 }
-
-export function getDisplayMode() {
-    let displayMode = 'browser';
-    const mqStandAlone = '(display-mode: standalone)';
-    if (navigator.standalone || window.matchMedia(mqStandAlone).matches) {
-        displayMode = 'standalone';
-    }
-    return displayMode;
-}
-
-
-// Close when click on scrim
-export function showDialogModal(dlg) {
-    const tn = dlg.tagName;
-    if (tn != "DIALOG") {
-        throw Error(`Expeced DIALOG, got ${tn}`);
-    }
-    function isInside(bcr, cX, cY) {
-        if (cX < bcr.left) return false;
-        if (cX > bcr.right) return false;
-        if (cY < bcr.top) return false;
-        if (cY > bcr.bottom) return false;
-        return true;
-    }
-    dlg.addEventListener("click", evt => {
-        const bcr = dlg.getBoundingClientRect();
-        const cX = evt.clientX;
-        const cY = evt.clientY;
-        const inside = isInside(bcr, cX, cY);
-        // console.log("click", { inside, cX, cY, bcr });
-        if (!inside) { dlg.close(); }
-    });
-    dlg.showModal();
-}
-
-
-
-function startDlgErr(title, err) {
-    const dlgErr = document.createElement("dialog");
-    dlgErr.id = "dialog-err-pwa";
-    dlgErr.appendChild(mkElt("h2", undefined, title));
-    if (err) {
-        const errCls = err.constructor.name;
-        const errMsg = err.message;
-        dlgErr.appendChild(
-            mkElt("p", undefined, [
-                mkElt("i", undefined, mkElt("b", undefined, `${errCls}: `)),
-                mkElt("span", undefined, errMsg),
-            ]));
-    }
-    return dlgErr;
-}
-function finishAndShowDlgErr(dlgErr, moreInConsole) {
-    if (moreInConsole) {
-        dlgErr.appendChild(mkElt("div", undefined, "----"));
-        dlgErr.appendChild(mkElt("div", undefined, "(More info in console)"));
-    }
-
-    const btnClose = document.createElement("button");
-    btnClose.textContent = "Close";
-    btnClose.addEventListener("click", evt => { dlgErr.remove(); })
-    const pClose = document.createElement("p");
-    pClose.appendChild(btnClose);
-    dlgErr.appendChild(pClose);
-
-    document.body.appendChild(dlgErr);
-    showDialogModal(dlgErr);
-}
-
-// Add a global error handler
-window.addEventListener("error", evt => {
-    // console.error("unhandled error:", evt.error, evt);
-    const dlgErr = startDlgErr("Unhandled error", evt.error);
-    finishAndShowDlgErr(dlgErr, true);
-});

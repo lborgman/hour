@@ -1,4 +1,4 @@
-const version = "1.5.1";
+const version = "1.5.4";
 
 /*
     This is a boilerplate for handling a simple PWA.
@@ -12,7 +12,7 @@ const version = "1.5.1";
         2) pwa-not-cached.js which is not cached. 
         3) sw-input.js - which I use myself here.
 
-    The web browser client should just do
+    The web browser client should do
 
       import("pwa.js");
 
@@ -20,10 +20,21 @@ const version = "1.5.1";
     Any changes to your PWA handling should be done to this later file
     which is not cached.
 
-
     The user will be automatically prompted to update.
     The styling of that dialog is done by adding a style sheet
     before all other style sheets. So you can easily override this.
+
+    A typical setup could look like this:
+
+        <script type="module">
+          const eltVer = document.getElementById("version");
+          const versionSWfun = (ver) => { eltVer.textContent = ver; return eltVer; }
+          const modPWA = await import("./pwa.js");
+          modPWA.startSW("./sw-workbox.js");
+          modPWA.setVersionSWfun(versionSWfun);  // optional
+          modPWA.setUpdateTitle(document.title); // optional, default is document.title
+        </script>
+
 
 
     *** THE SERVICE WORKER FILE ***
@@ -48,18 +59,20 @@ const version = "1.5.1";
         });
 
     I handle it the way below.
-    When I want to create a the service worker file then I:
+    Before every commit:
     
         1) Change the SW_VERSION at the top of sw-input.js
         2) run "nxp workbox-cli injectManifest"
 
     In the call to workbox-cli above the file workbox-config.js is used.
-    I have just created this with
+    I have created this once with
 
         npx workbox-cli wizard
 
-    My code have been tested with Google Chrome web browser
-    using GitHub Pages as the server.
+
+
+    My code (including this file) have been tested with
+    Google Chrome web browser using GitHub Pages as the server.
 
 
     I plan to use these files in different small projects.
@@ -122,7 +135,7 @@ let modNotCached;
 
 let theFunVersion;
 let theEltVersion;
-let updateTitle;
+let theUpdateTitle = document.title;
 
 const secDlgUpdateTransition = 1;
 const msDlgUpdateTransition = 1000 * secDlgUpdateTransition;
@@ -343,7 +356,7 @@ export async function setVersionSWfun(funVersion) {
     swController.postMessage({ type: "GET_VERSION" }, [messageChannelVersion.port2]);
     waitUntilSetVerFun.tellReady();
 }
-export async function setUpdateTitle(strTitle) { updateTitle = strTitle; }
+export async function setUpdateTitle(strTitle) { theUpdateTitle = strTitle; }
 export async function startSW(urlSW) {
     if (!PWAonline()) { return; }
     await waitUntilNotCachedLoaded.promReady();
@@ -526,7 +539,7 @@ async function promptForUpdate(waitingVersion) {
     const btnUpdate = mkElt("button", undefined, "Update");
     const divPromptButtons = mkElt("p", undefined, [btnUpdate, btnSkip]);
     const dlgPromptUpdate = mkElt("dialog", { id: "pwa-dialog-update", class: "pwa2-dialog" }, [
-        mkElt("h2", undefined, updateTitle),
+        mkElt("h2", undefined, theUpdateTitle),
         mkElt("p", undefined, [
             "Update available:",
             mkElt("div", undefined, `version ${waitingVersion}`)

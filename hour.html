@@ -466,15 +466,9 @@
     </script>
 
     <script type="module">
-        const eltVersion = document.getElementById("version");
-        const versionSWfun = (ver) => {
-            eltVersion.textContent = ver;
-            return eltVersion;
-        }
-        const pwaJs = `./pwa.js`;
-        const modPWA = await import(pwaJs);
-        modPWA.setUpdateTitle(document.title);
-        // modPWA.setVersionSWfun(versionFun);
+        const eltVer = document.getElementById("version");
+        const versionSWfun = (ver) => { eltVer.textContent = ver; return eltVer; }
+        const modPWA = await import("./pwa.js");
         modPWA.startSW("./sw-hour-workbox.js");
         modPWA.setVersionSWfun(versionSWfun);
     </script>

@@ -1,5 +1,5 @@
 // See pwa.js for documentation
-const SW_VERSION = "0.9.256";
+const SW_VERSION = "0.9.259";
 
 const logStyle = "background:blue; color:white; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
@@ -17,7 +17,7 @@ logStrongConsole(`Service worker SW_VERSION=${SW_VERSION}`);
 // https://www.npmjs.com/package/workbox-sw
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
-workbox.precaching.precacheAndRoute([{"revision":"d91753b3dceb3437db817caf6c5f222b","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"bd8902a5e61cc2f23f87b2e8c713e08e","url":"manifest.json"},{"revision":"b43b0c132a950f0cf4ca727a5d87415b","url":"OLDpwa-not-cached.js"},{"revision":"afd7cb93716d2a6deba3043deef5cc47","url":"OLDpwa.js"},{"revision":"f706d1ac758130e93c07fe444f9f4403","url":"pwa-not-cached.js"},{"revision":"cccf31b955c85c559995bcab5735a9fb","url":"pwa.js"},{"revision":"60e7a81b2c2c6bf66b43c97a5b1f0ce5","url":"sw-reset.js"},{"revision":"ff108474f142c51641af4f47ed79c2a4","url":"workbox-config.js"}]);
+workbox.precaching.precacheAndRoute([{"revision":"f0507de2c6378941ea34d6e346f741b9","url":"hour.html"},{"revision":"104b7da4d74d59b641ffb764822d1850","url":"hour.svg"},{"revision":"6bfe278097e33ae7bdf4bddd1fdc2155","url":"hour2.svg"},{"revision":"bd8902a5e61cc2f23f87b2e8c713e08e","url":"manifest.json"},{"revision":"b43b0c132a950f0cf4ca727a5d87415b","url":"OLDpwa-not-cached.js"},{"revision":"afd7cb93716d2a6deba3043deef5cc47","url":"OLDpwa.js"},{"revision":"f706d1ac758130e93c07fe444f9f4403","url":"pwa-not-cached.js"},{"revision":"424e7569c5031121002308e4e8b00f06","url":"pwa.js"},{"revision":"60e7a81b2c2c6bf66b43c97a5b1f0ce5","url":"sw-reset.js"},{"revision":"ff108474f142c51641af4f47ed79c2a4","url":"workbox-config.js"}]);
 
 
 

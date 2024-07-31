@@ -92,7 +92,7 @@
             margin-top: 40px;
         }
 
-        #version {
+        #PWA-version {
             position: fixed;
             right: 10px;
             top: 20px;
@@ -101,7 +101,7 @@
             opacity: 0.4;
         }
 
-        #version:hover {
+        #PWA-version:hover {
             opacity: 1;
         }
 
@@ -321,7 +321,7 @@
             </p>
         </section>
     </section>
-    <div id="version"> </div>
+    <div id="PWA-version"> </div>
 
 
     <div id="expander-wrapper">
@@ -466,11 +466,7 @@
     </script>
 
     <script type="module">
-        const eltVer = document.getElementById("version");
-        const versionSWfun = (ver) => { eltVer.textContent = ver; return eltVer; }
         const modPWA = await import("./pwa.js");
-        modPWA.startSW("./sw-hour-workbox.js");
-        modPWA.setVersionSWfun(versionSWfun);
     </script>
 
 </body>

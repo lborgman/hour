@@ -257,7 +257,6 @@ async function setupServiceWorker() {
         // return swRegistration;
     } catch (err) {
         console.error("Service worker registration failed", { err });
-        alert(err);
         throw err;
     }
 }

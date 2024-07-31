@@ -1,4 +1,4 @@
-const version = "1.5.4";
+const version = "1.5.5";
 
 /*
     This is a boilerplate for handling a simple PWA.
@@ -27,12 +27,9 @@ const version = "1.5.4";
     A typical setup could look like this:
 
         <script type="module">
-          const eltVer = document.getElementById("version");
-          const versionSWfun = (ver) => { eltVer.textContent = ver; return eltVer; }
           const modPWA = await import("./pwa.js");
-          modPWA.startSW("./sw-workbox.js");
-          modPWA.setVersionSWfun(versionSWfun);  // optional
-          modPWA.setUpdateTitle(document.title); // optional, default is document.title
+          modPWA.startSW("./MY-sw-workbox.js");  // optional, default is "./sw-workbox.js"
+          modPWA.setUpdateTitle("My title");     // optional, default is document.title
         </script>
 
 
@@ -133,9 +130,33 @@ if (urlPWA.hash.length > 0) console.error("pwa.js should have no hash");
 
 let modNotCached;
 
-let theFunVersion;
+
+const keyVersion = `PWA-version ${import.meta.url}`;
+function saveAppVersion(version) { localStorage.setItem(keyVersion, version); }
+function getSavedAppVersion() { return localStorage.getItem(keyVersion); }
+
+
 let theEltVersion;
+const theFunVersionDefault = (ver) => {
+    const eltVer = document.getElementById("PWA-version");
+    eltVer.textContent = ver;
+    return eltVer;
+}
+let theFunVersion;
+setVersionSWfun(theFunVersionDefault)
+
+
+
+
+// Override defaults (before sw started):
+
 let theUpdateTitle = document.title;
+export function setUpdateTitle(strTitle) { theUpdateTitle = strTitle; }
+
+let theSWurl = "./sw-workbox.js";
+export function setSWurl(urlSw) { theSWurl = urlSw; }
+
+
 
 const secDlgUpdateTransition = 1;
 const msDlgUpdateTransition = 1000 * secDlgUpdateTransition;
@@ -146,14 +167,18 @@ let msPleaseWaitUpdating = 1000 * secPleaseWaitUpdating;
 addCSS();
 
 class WaitUntil {
-    #evtName; #target; #prom;
+    #evtName; #target; #prom; #ready = false;
     constructor(evtName, target) {
         this.#evtName = evtName;
         this.#target = target || window;
         this.#prom = simpleBlockUntilEvent(this.#target, this.#evtName);
     }
     promReady() { return this.#prom; }
-    tellReady() { this.#target.dispatchEvent(new Event(this.#evtName)); }
+    isReady() { return this.#ready;}
+    tellReady() {
+        this.#ready = true;
+        this.#target.dispatchEvent(new Event(this.#evtName));
+    }
 }
 
 const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
@@ -245,11 +270,6 @@ if (PWAonline()) {
     window.addEventListener("online", evt => { loadNotCached(); }, { once: true });
 }
 
-const keyVersion = `PWA-version ${import.meta.url}`;
-function saveAppVersion(version) { localStorage.setItem(keyVersion, version); }
-function getSavedAppVersion() { return localStorage.getItem(keyVersion); }
-
-const waitUntilSetVerFun = new WaitUntil("pwa-set-version-fun");
 export async function setVersionSWfun(funVersion) {
     if (theFunVersion) {
         if (theFunVersion === funVersion) {
@@ -354,10 +374,14 @@ export async function setVersionSWfun(funVersion) {
     messageChannelVersion.port1.onmessage = (event) => { onGotVersion(event.data); };
     const swController = navigator.serviceWorker.controller;
     swController.postMessage({ type: "GET_VERSION" }, [messageChannelVersion.port2]);
-    waitUntilSetVerFun.tellReady();
+    // waitUntilSetVerFun.tellReady();
 }
-export async function setUpdateTitle(strTitle) { theUpdateTitle = strTitle; }
-export async function startSW(urlSW) {
+
+
+
+// Delay startSW so we can override defaults:
+setTimeout(startSW, 500);
+async function startSW() {
     if (!PWAonline()) { return; }
     await waitUntilNotCachedLoaded.promReady();
     if (!modNotCached) return;
@@ -375,7 +399,7 @@ export async function startSW(urlSW) {
         return;
     }
     try {
-        await modNotCached.startSW(urlSW);
+        await modNotCached.startSW(theSWurl);
     } catch (err) {
         console.log({ err });
         const dlgErr = startDlgErr("Can't start service worker", err);

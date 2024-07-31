@@ -1,6 +1,6 @@
 // See pwa.js for documentation
 
-const version = "1.1.1";
+const version = "1.1.2";
 export function getVersion() { return version; }
 
 const doSwReset = false;

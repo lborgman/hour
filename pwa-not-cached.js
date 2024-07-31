@@ -1,10 +1,9 @@
 // See pwa.js for documentation
 
-const doSwReset = false;
-
-const version = "1.1.0";
+const version = "1.1.1";
 export function getVersion() { return version; }
 
+const doSwReset = false;
 let pwaFuns;
 
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
@@ -21,7 +20,7 @@ function warnConsole(...msg) { console.warn(`%cpwa-nc.js`, logStyle, ...msg); }
 function logInstallEvent(...msg) { console.log("%cpwa-nc", styleInstallEvents, ...msg); }
 
 
-logStrongConsole(`here is module pwa-not-cached.js, ver 3, ${import.meta.url}`);
+logStrongConsole(`here is module pwa-not-cached.js, ${version}, ${import.meta.url}`);
 
 
 
@@ -30,20 +29,19 @@ const msPleaseWaitUpdating = secPleaseWaitUpdating * 1000;
 export function getSecPleaseWaitUpdating() { return secPleaseWaitUpdating; }
 
 
-// let funVersion;
-// let swVersion;
+
 let instWorkbox;
 let ourUrlSW;
 
 
-const url = new URL(import.meta.url);
-const params = [...url.searchParams.keys()];
-if (params.length != 1 || params[0] != "nocache") {
-    throw Error(`There should be only one parameter, "nocache"`);
-}
+const urlModule = new URL(import.meta.url);
+const params = [...urlModule.searchParams.keys()];
+if (params.length != 1 || params[0] != "nocache") { throw Error(`There should be only one parameter, "nocache"`); }
 
 if (document.currentScript) throw Error("import .currentScript"); // is module
 if (!import.meta.url) throw Error("!import.meta.url"); // is module
+
+
 
 export async function startSW(urlSW) {
     if (doSwReset) {
@@ -118,7 +116,7 @@ async function addDebugSWinfo() {
                 }
             });
 
-            const eltA = mkElt("a", { href: url, target: "_blank" }, url);
+            const eltA = mkElt("a", { href: urlModule, target: "_blank" }, urlModule);
             eltA.style.marginLeft = "10px";
             const eltRow = mkElt("span", undefined, [
                 stateOfReg, eltC,
@@ -164,13 +162,11 @@ async function setupServiceWorker() {
     wb.addEventListener("message",
         async evt => {
             logStrongConsole("got message", { evt });
-            // snackbar, broadcastToClients, keepAliveCounter, messageSW
             const msgType = evt.data.type;
             switch (msgType) {
                 default:
                     mkSnackbar(evt.data.text);
             }
-            // }));
         });
 
     const showSkipWaitingPrompt = async (event) => {
@@ -261,22 +257,15 @@ async function setupServiceWorker() {
     }
 }
 
-/*
-function saveVersion(ver) {
-    swVersion = ver;
-    logConsole(`Service Worker version: ${swVersion}`);
-    if (funVersion) { funVersion(swVersion); }
-}
-*/
 
 function setupForInstall() {
-    // FIX-ME: leave this here for now because it does not seem to be stable in Chromium.
+    // FIX-ME: leave this here (instead of moving it to pwa.js)
+    //    for now because it does not seem to be stable in Chromium.
     // Maybe have a close look on these?
     // https://love2dev.com/pwa/add-to-homescreen-library/
     // https://web.dev/learn/pwa/detection
 
     logStrongConsole("setupForInstall");
-    // const displayMode = getDisplayMode();
     const getDisplayMode = pwaFuns["getDisplayMode"];
     logConsole({ getDisplayMode });
     const displayMode = getDisplayMode ? getDisplayMode() : undefined;
@@ -335,7 +324,6 @@ function setupForInstall() {
         logInstallEvent("showInstallPromotion");
         document.body.appendChild(dialogInstallPromotion);
         dialogInstallPromotion.showModal();
-        // dialogInstallPromotion.style.display = null;
     }
     function hideInstallPromotion() {
         logInstallEvent("hideInstallPromotion");
@@ -383,7 +371,7 @@ async function getWorkbox() {
 }
 
 
-async function updateNow() {
+async function NOupdateNow() {
     logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 1");
     const wb = await getWorkbox();
     logConsole("pwa.updateNow, calling wb.messageSkipWaiting() 2");

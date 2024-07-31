@@ -162,11 +162,13 @@ setVersionSWfun(theFunVersionDefault)
 
 
 
-
-// Override defaults (before sw started):
 let theUpdateTitle = document.title;
-export function setUpdateTitle(strTitle) { theUpdateTitle = strTitle; }
 let theSWurl = "./sw-workbox.js";
+
+
+
+// Override defaults (call before sw started):
+export function setUpdateTitle(strTitle) { theUpdateTitle = strTitle; }
 export function setSWurl(urlSw) { theSWurl = urlSw; }
 
 
@@ -186,9 +188,19 @@ class WaitUntil {
         this.#target.dispatchEvent(new Event(this.#evtName));
     }
 }
-
 const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
+
+if (PWAonline()) {
+    loadNotCached();
+} else {
+    window.addEventListener("online", evt => { loadNotCached(); });
+}
+
+
+
+
 async function loadNotCached() {
+    if (modNotCached) return;
     let isOnLine = PWAonline();
     if (isOnLine) {
         urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
@@ -262,12 +274,6 @@ async function loadNotCached() {
     logStrongConsole("loadNotCached", { modNotCached });
 }
 
-
-if (PWAonline()) {
-    loadNotCached();
-} else {
-    window.addEventListener("online", evt => { loadNotCached(); }, { once: true });
-}
 
 export async function setVersionSWfun(funVersion) {
     if (theFunVersion) {
@@ -378,7 +384,7 @@ export async function setVersionSWfun(funVersion) {
 setTimeout(startSW, 500);
 
 async function startSW() {
-    if (!PWAonline()) { return; }
+    // if (!PWAonline()) { return; }
     await waitUntilNotCachedLoaded.promReady();
     if (!modNotCached) return;
     if (typeof modNotCached.startSW != "function") {

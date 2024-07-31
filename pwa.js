@@ -1,4 +1,4 @@
-const version = "1.5.7";
+const version = "1.5.8";
 
 /*
     This is a boilerplate for handling a simple PWA.
@@ -190,11 +190,11 @@ class WaitUntil {
 }
 const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
 
-if (PWAonline()) {
+if (await PWAonline()) {
     loadNotCached();
 } else {
-    window.addEventListener("online", evt => {
-        if (!PWAonline()) return;
+    window.addEventListener("online", async evt => {
+        if (!await PWAonline()) return;
         loadNotCached();
     });
 }
@@ -203,8 +203,8 @@ if (PWAonline()) {
 
 
 async function loadNotCached() {
+    console.log("loadNotCached");
     if (modNotCached) return;
-    // const isOnLine = PWAonline();
     const isOnLine = true;
     if (isOnLine) {
         urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");

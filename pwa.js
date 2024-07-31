@@ -1,4 +1,4 @@
-const version = "1.5.6";
+const version = "1.5.7";
 
 /*
     This is a boilerplate for handling a simple PWA.
@@ -182,7 +182,7 @@ class WaitUntil {
         this.#prom = simpleBlockUntilEvent(this.#target, this.#evtName);
     }
     promReady() { return this.#prom; }
-    isReady() { return this.#ready;}
+    isReady() { return this.#ready; }
     tellReady() {
         this.#ready = true;
         this.#target.dispatchEvent(new Event(this.#evtName));
@@ -193,7 +193,10 @@ const waitUntilNotCachedLoaded = new WaitUntil("pwa-loaded-not-cached");
 if (PWAonline()) {
     loadNotCached();
 } else {
-    window.addEventListener("online", evt => { loadNotCached(); });
+    window.addEventListener("online", evt => {
+        if (!PWAonline()) return;
+        loadNotCached();
+    });
 }
 
 
@@ -201,7 +204,8 @@ if (PWAonline()) {
 
 async function loadNotCached() {
     if (modNotCached) return;
-    let isOnLine = PWAonline();
+    // const isOnLine = PWAonline();
+    const isOnLine = true;
     if (isOnLine) {
         urlPWA.pathname = urlPWA.pathname.replace("pwa.js", "pwa-not-cached.js");
         const ncVal = new Date().toISOString().slice(0, -5);
@@ -384,7 +388,6 @@ export async function setVersionSWfun(funVersion) {
 setTimeout(startSW, 500);
 
 async function startSW() {
-    // if (!PWAonline()) { return; }
     await waitUntilNotCachedLoaded.promReady();
     if (!modNotCached) return;
     if (typeof modNotCached.startSW != "function") {
@@ -608,14 +611,14 @@ export async function PWAonline() {
     function getRandomString() { return Math.random().toString(36).substring(2, 15) }
     url.searchParams.set('rand', getRandomString())
     let urlHref = url.href;
-    console.log("try to fetch", urlHref);
+    console.trace("PWAonline: try to fetch", urlHref);
 
     try {
         const response = await fetch(urlHref, { method: 'HEAD' },)
-        // Any response is ok here
+        console.log(`PWAonline, (any response is actually ok here) response.ok: ${response.ok}`)
         return true;
     } catch {
-        console.log("didn't get response");
+        console.log("PWAonline: didn't get response");
         return false
     }
 }

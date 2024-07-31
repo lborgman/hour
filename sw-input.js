@@ -1,5 +1,5 @@
 // See pwa.js for documentation
-const SW_VERSION = "0.9.278";
+const SW_VERSION = "0.9.282";
 
 const logStyle = "background:blue; color:white; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";

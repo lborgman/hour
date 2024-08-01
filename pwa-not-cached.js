@@ -1,6 +1,6 @@
 // See pwa.js for documentation
 
-const version = "1.1.2";
+const version = "1.1.3";
 export function getVersion() { return version; }
 
 const doSwReset = false;
@@ -46,7 +46,7 @@ if (!import.meta.url) throw Error("!import.meta.url"); // is module
 export async function startSW(urlSW) {
     if (doSwReset) {
         await (async function () {
-            console.log("in async doSwReset");
+            logStrongConsole("in async doSwReset, please remove");
             if (navigator.serviceWorker.controller !== null) { }
             const regSW = await navigator.serviceWorker.getRegistrations();
             console.log({ regSW });

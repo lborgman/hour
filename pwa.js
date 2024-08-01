@@ -1,4 +1,4 @@
-const version = "1.5.8";
+const version = "1.5.11";
 
 /*
     This is a boilerplate for handling a simple PWA.
@@ -154,6 +154,10 @@ let modNotCached;
 let theEltVersion;
 const theFunVersionDefault = (ver) => {
     const eltVer = document.getElementById("PWA-version");
+    if (!eltVer) {
+        logStrongConsole("could not find element #PWA-version");
+        return;
+    }
     eltVer.textContent = ver;
     return eltVer;
 }
@@ -279,8 +283,8 @@ async function loadNotCached() {
 }
 
 
-export async function setVersionSWfun(funVersion) {
-    if (theFunVersion) {
+export function setVersionSWfun(funVersion) {
+    if (theFunVersion && theFunVersion !== theFunVersionDefault) {
         if (theFunVersion === funVersion) {
             throw Error("setVersionSWfun called 2 times with same argument");
         }

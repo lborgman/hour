@@ -1,22 +1,26 @@
 // See pwa.js for documentation
-const SW_VERSION = "0.9.285";
+const SW_VERSION = "0.9.286";
+
+// https://www.npmjs.com/package/workbox-sw
+const urlWorkbox = 'https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js';
+
 
 const logStyle = "background:blue; color:white; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
 let swName = "PWA service worker";
+
 function logConsole(...msg) {
     // console.log(`%c${swName}`, logStyle, ...msg);
 }
 function logStrongConsole(...msg) { console.log(`%c${swName}`, logStrongStyle, ...msg); }
 
 
+
 logStrongConsole(`Service worker SW_VERSION=${SW_VERSION}`);
 
 
 
-// https://www.npmjs.com/package/workbox-sw
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
-
+importScripts(urlWorkbox);
 workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 
 

@@ -1,6 +1,6 @@
 // See pwa.js for documentation
 
-const version = "1.1.3";
+const version = "1.1.4";
 export function getVersion() { return version; }
 
 const doSwReset = false;
@@ -239,6 +239,7 @@ async function setupServiceWorker() {
         // But we must check for .controller beeing null
         // (this happens during "hard reload" and when Lighthouse tests).
         // https://www.youtube.com/watch?v=1d3KgacJv1I
+        /*
         if (navigator.serviceWorker.controller !== null) {
             navigator.serviceWorker.controller.postMessage({ type: "TELL_SW_NAME", SW_NAME: ourUrlSW });
 
@@ -249,6 +250,7 @@ async function setupServiceWorker() {
         } else {
             addScreenDebugRow(`Service Worker version: controller is null`);
         }
+        */
 
         // return swRegistration;
     } catch (err) {

@@ -1,5 +1,5 @@
 // See pwa.js for documentation
-const SW_VERSION = "0.9.287";
+const SW_VERSION = "0.9.288";
 
 // https://www.npmjs.com/package/workbox-sw
 const urlWorkbox = 'https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js';

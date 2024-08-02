@@ -1,4 +1,4 @@
-const version = "1.5.11";
+const version = "1.6.0";
 
 /*
     This is a boilerplate for handling a simple PWA.
@@ -79,6 +79,7 @@ const version = "1.5.11";
         https://github.com/lborgman/hour
 */
 
+window["pwa.js loaded"] = true;
 
 const logStyle = "background:yellowgreen; color:black; padding:2px; border-radius:2px;";
 const logStrongStyle = logStyle + " font-size:18px;";
@@ -282,6 +283,98 @@ async function loadNotCached() {
     logStrongConsole("loadNotCached", { modNotCached });
 }
 
+export function tellMeVersionAgain() {
+    const storedVersion = getSavedAppVersion() || "No ver";
+    const theEltVersion = theFunVersion(storedVersion);
+    addVersionDialog(theEltVersion);
+}
+function addVersionDialog(theEltVersion) {
+    if (!theEltVersion) return;
+    if (theEltVersion.classList.contains("PWA-version-dialog")) return;
+    theEltVersion.classList.add("PWA-version-dialog");
+    theEltVersion.title = "Show versions details";
+    theEltVersion.addEventListener("click", evt => {
+        evt.stopPropagation();
+        const aPwsJs = mkElt("a", { href: import.meta.url, target: "_blank" }, "pwa.js");
+
+        const dlg = mkElt("dialog", { id: "pwa-dialog-versions" }, [
+            mkElt("h2", undefined, "PWA info and debug"),
+            mkElt("p", undefined, [
+                mkElt("i", undefined, [
+                    "This info is for developer debugging.",
+                    " How to set up this is described in the beginning of the file ",
+                ]),
+                aPwsJs,
+            ]),
+        ]);
+        dlg.appendChild(mkElt("div", undefined, `App version: ${getSavedAppVersion()}`));
+
+        dlg.appendChild(mkElt("div", undefined, "Service Worker:"));
+        const appendIndentedRow = (txt) => {
+            const row = mkElt("div", undefined, txt);
+            row.style.marginLeft = "10px";
+            dlg.appendChild(row);
+        }
+        const swController = navigator.serviceWorker.controller;
+        if (swController == null) {
+            appendIndentedRow("null");
+        } else {
+            const u = swController.scriptURL;
+            const aSW = mkElt("a", { href: u, target: "_blank" }, u);
+            appendIndentedRow(mkElt("div", undefined, [
+                "scriptURL: ",
+                aSW
+            ]));
+            appendIndentedRow(mkElt("div", undefined, [
+                "state: ",
+                swController.state
+            ]));
+        }
+
+        for (const k in versions) {
+            const v = versions[k];
+            dlg.appendChild(mkElt("div", undefined, `${k}: ${v}`));
+        }
+
+        const chkLogToScreen = mkElt("input", { type: "checkbox" });
+        chkLogToScreen.checked = mayLogToScreen;
+        chkLogToScreen.addEventListener("input", evt => {
+            mayLogToScreen = !mayLogToScreen;
+            if (mayLogToScreen) {
+                localStorage.setItem(keyLogToScreen, "may log to screen");
+            } else {
+                localStorage.removeItem(keyLogToScreen);
+            }
+            if (secDebug) {
+                if (mayLogToScreen) {
+                    secDebug.style.display = "unset";
+                } else {
+                    secDebug.style.display = "none";
+                }
+            }
+        });
+        dlg.appendChild(
+            mkElt("p", undefined, [
+                mkElt("span", undefined, [
+                    mkElt("b", undefined, "Log to screen at start: "),
+                    chkLogToScreen
+                ])
+            ]));
+
+
+        const btnClose = mkElt("button", undefined, "Close");
+        const divClose = mkElt("p", undefined, btnClose);
+        dlg.appendChild(divClose);
+        document.body.appendChild(dlg);
+        btnClose.addEventListener("click", evt => {
+            dlg.close();
+            dlg.remove();
+        });
+        showDialogModal(dlg);
+        setTimeout(() => btnClose.focus(), 100);
+    });
+
+}
 
 export function setVersionSWfun(funVersion) {
     if (theFunVersion && theFunVersion !== theFunVersionDefault) {
@@ -293,89 +386,7 @@ export function setVersionSWfun(funVersion) {
     theFunVersion = funVersion;
     const storedVersion = getSavedAppVersion() || "No ver";
     theEltVersion = theFunVersion(storedVersion);
-    if (theEltVersion) {
-        theEltVersion.title = "Click to show more about version";
-        theEltVersion.addEventListener("click", evt => {
-            evt.stopPropagation();
-            const aPwsJs = mkElt("a", { href: import.meta.url, target: "_blank" }, "pwa.js");
-
-            const dlg = mkElt("dialog", { id: "pwa-dialog-versions" }, [
-                mkElt("h2", undefined, "PWA info and debug"),
-                mkElt("p", undefined, [
-                    mkElt("i", undefined, [
-                        "This info is for developer debugging.",
-                        " How to set up this is described in the beginning of the file ",
-                    ]),
-                    aPwsJs,
-                ]),
-            ]);
-            dlg.appendChild(mkElt("div", undefined, `App version: ${getSavedAppVersion()}`));
-
-            dlg.appendChild(mkElt("div", undefined, "Service Worker:"));
-            const appendIndentedRow = (txt) => {
-                const row = mkElt("div", undefined, txt);
-                row.style.marginLeft = "10px";
-                dlg.appendChild(row);
-            }
-            const swController = navigator.serviceWorker.controller;
-            if (swController == null) {
-                appendIndentedRow("null");
-            } else {
-                const u = swController.scriptURL;
-                const aSW = mkElt("a", { href: u, target: "_blank" }, u);
-                appendIndentedRow(mkElt("div", undefined, [
-                    "scriptURL: ",
-                    aSW
-                ]));
-                appendIndentedRow(mkElt("div", undefined, [
-                    "state: ",
-                    swController.state
-                ]));
-            }
-
-            for (const k in versions) {
-                const v = versions[k];
-                dlg.appendChild(mkElt("div", undefined, `${k}: ${v}`));
-            }
-
-            const chkLogToScreen = mkElt("input", { type: "checkbox" });
-            chkLogToScreen.checked = mayLogToScreen;
-            chkLogToScreen.addEventListener("input", evt => {
-                mayLogToScreen = !mayLogToScreen;
-                if (mayLogToScreen) {
-                    localStorage.setItem(keyLogToScreen, "may log to screen");
-                } else {
-                    localStorage.removeItem(keyLogToScreen);
-                }
-                if (secDebug) {
-                    if (mayLogToScreen) {
-                        secDebug.style.display = "unset";
-                    } else {
-                        secDebug.style.display = "none";
-                    }
-                }
-            });
-            dlg.appendChild(
-                mkElt("p", undefined, [
-                    mkElt("span", undefined, [
-                        mkElt("b", undefined, "Log to screen at start: "),
-                        chkLogToScreen
-                    ])
-                ]));
-
-
-            const btnClose = mkElt("button", undefined, "Close");
-            const divClose = mkElt("p", undefined, btnClose);
-            dlg.appendChild(divClose);
-            document.body.appendChild(dlg);
-            btnClose.addEventListener("click", evt => {
-                dlg.close();
-                dlg.remove();
-            });
-            showDialogModal(dlg);
-            setTimeout(() => btnClose.focus(), 100);
-        });
-    }
+    addVersionDialog(theEltVersion);
     function onGotVersion(version) {
         saveAppVersion(version);
         if (theFunVersion) { theFunVersion(version); }
@@ -534,6 +545,12 @@ function addCSS() {
         }
 
 
+        .PWA-version-dialog {
+            cursor: pointer;
+        }
+        .PWA-version-dialog:hover {
+            color: darkred;
+        }
     `;
     const style1 = document.querySelector("style");
     document.head.insertBefore(eltCSS, style1);
